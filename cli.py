@@ -5,18 +5,17 @@ import argparse
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        prog="terminal",
-        description="Bitcoin analytics CLI",
+        description="Bitcoin options analytics CLI.",
     )
     parser.add_argument(
         "--iv-surface",
         action="store_true",
-        help="Render the BTC options implied-volatility surface (Deribit, 3D)",
+        help="render the BTC options implied-volatility surface (Deribit, 3D)",
     )
     args = parser.parse_args()
 
     if args.iv_surface:
-        from options_chain import iv_surface
+        from volatility import iv_surface
 
         iv_surface.run()
         return
