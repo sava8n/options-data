@@ -5,7 +5,7 @@ import argparse
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Bitcoin options analytics CLI.",
+        description="Bitcoin options data analytics CLI.",
     )
     parser.add_argument(
         "--iv-surface",
