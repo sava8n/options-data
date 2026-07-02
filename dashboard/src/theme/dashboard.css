@@ -1,0 +1,226 @@
+/* Bloomberg Terminal-like aesthetic: black canvas, amber text, dense monospace panels. */
+
+:root {
+  --bg: #000000;
+  --bg-panel: #050607;
+  --bg-raised: #0b0e10;
+  --border: #1c2426;
+  --border-bright: #2c3a3d;
+  --amber: #ffb000;
+  --amber-dim: #a97400;
+  --text: #c8d0d0;
+  --text-dim: #6c7a7a;
+  --green: #33ff66;
+  --red: #ff3b30;
+  --yellow: #ffd24a;
+  --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Menlo', 'Consolas', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- Layout ---- */
+.dashboard {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100%;
+  background: var(--bg);
+}
+
+/* ---- Header ---- */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 8px 14px;
+  background: linear-gradient(180deg, var(--bg-raised), var(--bg-panel));
+  border-bottom: 1px solid var(--border-bright);
+}
+
+.header__brand {
+  color: var(--amber);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+}
+
+.header__fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  flex: 1;
+}
+
+.field {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.field__k {
+  color: var(--text-dim);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.field__v {
+  color: var(--text);
+  letter-spacing: 0.5px;
+}
+
+.field__v--amber {
+  color: var(--amber);
+  font-weight: 700;
+}
+
+/* ---- Status tag ---- */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+}
+
+.tag__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.tag--ok {
+  color: var(--green);
+}
+.tag--warn {
+  color: var(--yellow);
+}
+.tag--err {
+  color: var(--red);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* ---- Panel ---- */
+.panel {
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
+  border: 1px solid var(--border-bright);
+  background: var(--bg-panel);
+  min-height: 0;
+}
+
+.panel__title {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-raised);
+}
+
+.panel__title-main {
+  color: var(--amber);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.panel__title-sub {
+  color: var(--text-dim);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.panel__body {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.panel__body > * {
+  position: absolute;
+  inset: 0;
+}
+
+.panel__msg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  font-size: 13px;
+}
+
+.panel__msg--err {
+  color: var(--red);
+}
+.panel__msg--warn {
+  color: var(--yellow);
+}
+
+/* ---- Status bar ---- */
+.statusbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 14px;
+  border-top: 1px solid var(--border-bright);
+  background: var(--bg-raised);
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+}
+
+.statusbar__item {
+  color: var(--text);
+}
+
+.statusbar__sep {
+  color: var(--border-bright);
+}
+
+.statusbar__spacer {
+  flex: 1;
+}
+
+.statusbar__conn--ok {
+  color: var(--green);
+}
+.statusbar__conn--warn {
+  color: var(--yellow);
+}
+.statusbar__conn--err {
+  color: var(--red);
+}

@@ -1,0 +1,26 @@
+"""Pydantic response models for the API."""
+
+from __future__ import annotations
+
+from datetime import datetime
+
+from pydantic import BaseModel
+
+
+class HealthResponse(BaseModel):
+    status: str
+
+
+class SurfacePoint(BaseModel):
+    expiry: datetime
+    tte_years: float
+    delta: float
+    mark_iv: float
+    option_type: str
+
+
+class IVSurfaceResponse(BaseModel):
+    currency: str
+    spot: float
+    as_of: datetime
+    points: list[SurfacePoint]

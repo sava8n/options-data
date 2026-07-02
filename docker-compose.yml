@@ -1,0 +1,26 @@
+services:
+  core:
+    build: ./core
+    container_name: options-core
+    ports:
+      - "8000:8000"
+    environment:
+      - OPTIONS_DATA_SERVICE_CORS_ORIGINS=http://localhost:8080,http://localhost:5173
+      - OPTIONS_DATA_SERVICE_SUPPORTED_CURRENCIES=BTC
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  dashboard:
+    build: ./dashboard
+    container_name: options-dashboard
+    ports:
+      - "8080:80"
+    depends_on:
+      core:
+        condition: service_healthy
+    restart: unless-stopped

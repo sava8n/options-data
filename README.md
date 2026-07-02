@@ -1,27 +1,46 @@
 # Options Data
 
-CLI tools that calculate greeks, implied volatilities, P/C ratios, and other metrics for options on BTC market based on real-time and historical data feeds.
+Options analytics for the BTC market based on real-time and historical data feeds.
+
+![Dashboard](docs/dashboard.png)
 
 ## Features
 
-- `--iv-surface` — fetches the full BTC option chain from Deribit, parses each instrument's strike and expiry, and plots the implied-volatility surface in 3D over **deltas** and **time to expiry**. IV values come directly from Deribit's `mark_iv`.
-![IV surface](docs/IV_surface.png)
+- `iv-surface` — fetches the full BTC option chain from Deribit, parses each instrument's strike and expiry, and plots the implied-volatility surface in 3D over **deltas** and **time to expiry**. IV values come directly from Deribit's `mark_iv`.
 
-## Setup
+## Quick start (Docker)
 
 ```sh
-$ git clone <this-repo>
-$ cd options-data
-$ python3 -m venv .venv
-$ source .venv/bin/activate
-$ pip install -r requirements.txt
+docker compose up --build
 ```
 
-A `.env` file with API keys may be needed in the future; the current `--iv-surface` feature uses only Deribit's public endpoints and does not require credentials.
+Then open **http://localhost:8080**.
 
-## Usage
+## API
+
+| Method | Path                          | Description    |
+| ------ | ----------------------------- | -------------- |
+| GET    | `/api/health`                 | Liveness probe |
+| GET    | `/api/iv-surface?currency=BTC`| IV surface     |
+
+> Note: API docs are available at http://localhost:8000/docs.
+
+## Local development
+
+Service:
 
 ```sh
-python cli.py --help          # list available features
-python cli.py --iv-surface    # render the BTC IV surface (opens a matplotlib window)
+cd core
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload # serves http://localhost:8000
+```
+
+Dashboard:
+
+```sh
+cd dashboard
+npm install
+npm run dev # serves http://localhost:5173, proxies /api -> :8000
 ```
