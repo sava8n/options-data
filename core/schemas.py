@@ -24,3 +24,18 @@ class IVSurfaceResponse(BaseModel):
     spot: float
     as_of: datetime
     points: list[SurfacePoint]
+
+
+class CurvePoint(BaseModel):
+    expiry: datetime
+    tte_years: float
+    strike: float
+    mark_iv: float
+    option_type: str
+
+
+class IVCurvesResponse(BaseModel):
+    currency: str
+    spot: float
+    as_of: datetime
+    points: list[CurvePoint]

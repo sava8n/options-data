@@ -7,6 +7,7 @@ Options analytics for the BTC market based on real-time and historical data feed
 ## Features
 
 - `iv-surface` — fetches the full BTC option chain from Deribit, parses each instrument's strike and expiry, and plots the implied-volatility surface in 3D over **deltas** and **time to expiry**. IV values come directly from Deribit's `mark_iv`.
+- `iv-curves` — reuses the same BTC option chain and plots the implied-volatility **smile** as 2D line curves, one per **expiry**, over **strike**. Each curve keeps the out-of-the-money leg (puts below the forward, calls above), so every expiry forms a clean U-shape. IV values come directly from Deribit's `mark_iv`.
 
 ## Quick start (Docker)
 
@@ -22,6 +23,7 @@ Then open **http://localhost:8080**.
 | ------ | ----------------------------- | -------------- |
 | GET    | `/api/health`                 | Liveness probe |
 | GET    | `/api/iv-surface?currency=BTC`| IV surface     |
+| GET    | `/api/iv-curves?currency=BTC` | IV curves      |
 
 > Note: API docs are available at http://localhost:8000/docs.
 

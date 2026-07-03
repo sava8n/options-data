@@ -7,10 +7,16 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, Query
 
 from config import settings
-from schemas import HealthResponse, IVSurfaceResponse, SurfacePoint
+from schemas import (
+    CurvePoint,
+    HealthResponse,
+    IVCurvesResponse,
+    IVSurfaceResponse,
+    SurfacePoint,
+)
 from clients import deribit
 from clients.deribit import DeribitError
-from volatility import iv_surface
+from volatility import iv_curves, iv_surface
 
 router = APIRouter()
 
@@ -50,6 +56,43 @@ def get_iv_surface(currency: str = Query("BTC")) -> IVSurfaceResponse:
     ]
 
     return IVSurfaceResponse(
+        currency=cur,
+        spot=spot,
+        as_of=datetime.now(timezone.utc),
+        points=points,
+    )
+
+
+@router.get("/iv-curves", response_model=IVCurvesResponse)
+def get_iv_curves(currency: str = Query("BTC")) -> IVCurvesResponse:
+    """BTC options implied-volatility smile curves: (strike, expiry) -> IV, one curve per expiry."""
+    cur = currency.upper()
+    if cur not in settings.supported_currency_list:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Unsupported currency '{currency}'. Supported: {settings.supported_currency_list}",
+        )
+
+    try:
+        spot = deribit.fetch_spot(cur)
+        summaries = deribit.fetch_option_summaries(cur)
+    except DeribitError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    grid = iv_curves.build_curves(summaries, spot)
+
+    points = [
+        CurvePoint(
+            expiry=row.expiry.to_pydatetime(),
+            tte_years=float(row.tte_years),
+            strike=float(row.strike),
+            mark_iv=float(row.mark_iv),
+            option_type=str(row.option_type),
+        )
+        for row in grid.itertuples(index=False)
+    ]
+
+    return IVCurvesResponse(
         currency=cur,
         spot=spot,
         as_of=datetime.now(timezone.utc),

@@ -1,0 +1,19 @@
+"""Implied-volatility smile curves (IV vs strike, per expiry) for Deribit options."""
+
+from __future__ import annotations
+
+import logging
+import pandas as pd
+
+from .quotes import prepare_quotes
+
+logger = logging.getLogger(__name__)
+
+# one row per surviving OTM quote, keyed by strike so each expiry forms a smile.
+CURVE_COLUMNS = ["expiry", "tte_years", "strike", "mark_iv", "option_type"]
+
+
+def build_curves(summaries: list[dict], spot: float) -> pd.DataFrame:
+    """BTC IV smile curves: OTM quotes keyed by (strike, expiry)."""
+    logger.debug("building IV curves from %d summaries", len(summaries))
+    return prepare_quotes(summaries, spot)[CURVE_COLUMNS]

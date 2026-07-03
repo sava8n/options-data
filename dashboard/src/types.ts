@@ -1,7 +1,7 @@
 // mirrors core/schemas.py
 
 export interface SurfacePoint {
-  expiry: string; // ISO 8601
+  expiry: string;
   tte_years: number;
   delta: number;
   mark_iv: number;
@@ -11,6 +11,21 @@ export interface SurfacePoint {
 export interface IVSurfaceResponse {
   currency: string;
   spot: number;
-  as_of: string; // ISO 8601
+  as_of: string;
   points: SurfacePoint[];
+}
+
+export interface CurvePoint {
+  expiry: string;
+  tte_years: number;
+  strike: number;
+  mark_iv: number;
+  option_type: string;
+}
+
+export interface IVCurvesResponse {
+  currency: string;
+  spot: number;
+  as_of: string;
+  points: CurvePoint[];
 }

@@ -1,1 +1,1 @@
-"""Shared external-API access layer (Deribit, and future data sources)."""
+"""Shared external-API access layer."""

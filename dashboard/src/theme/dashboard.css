@@ -132,14 +132,29 @@ body {
   }
 }
 
+/* ---- Panels row (surface | curves) ---- */
+.panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 10px;
+  min-height: 0;
+}
+
 /* ---- Panel ---- */
 .panel {
   display: flex;
   flex-direction: column;
-  margin: 10px;
   border: 1px solid var(--border-bright);
   background: var(--bg-panel);
   min-height: 0;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .panels {
+    grid-template-columns: 1fr;
+  }
 }
 
 .panel__title {

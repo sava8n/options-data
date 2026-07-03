@@ -1,7 +1,7 @@
-import type { IVSurfaceResponse } from '../types';
+import type { IVCurvesResponse, IVSurfaceResponse } from '../types';
 
-export async function fetchIVSurface(currency = 'BTC'): Promise<IVSurfaceResponse> {
-  const resp = await fetch(`/api/iv-surface?currency=${encodeURIComponent(currency)}`);
+async function fetchJson<T>(url: string): Promise<T> {
+  const resp = await fetch(url);
   if (!resp.ok) {
     let detail = `HTTP ${resp.status}`;
     try {
@@ -12,5 +12,13 @@ export async function fetchIVSurface(currency = 'BTC'): Promise<IVSurfaceRespons
     }
     throw new Error(detail);
   }
-  return (await resp.json()) as IVSurfaceResponse;
+  return (await resp.json()) as T;
+}
+
+export async function fetchIVSurface(currency = 'BTC'): Promise<IVSurfaceResponse> {
+  return fetchJson<IVSurfaceResponse>(`/api/iv-surface?currency=${encodeURIComponent(currency)}`);
+}
+
+export async function fetchIVCurves(currency = 'BTC'): Promise<IVCurvesResponse> {
+  return fetchJson<IVCurvesResponse>(`/api/iv-curves?currency=${encodeURIComponent(currency)}`);
 }

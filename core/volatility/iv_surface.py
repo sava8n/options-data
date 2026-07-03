@@ -1,117 +1,18 @@
-"""Implied-volatility surface analytics for Deribit options."""
+"""Implied-volatility surface for Deribit options."""
 
 from __future__ import annotations
 
 import logging
-from math import erf, sqrt
-
-import numpy as np
 import pandas as pd
+
+from .quotes import prepare_quotes
 
 logger = logging.getLogger(__name__)
 
-DELTA_LIMIT = 0.5  # keep only OTM options (|delta| <= 0.5)
-
-MIN_TTE_DAYS = 7  # keep weeklies for short-term context; drop sub-week dailies
-MAX_TTE_DAYS = 365  # cap at ~1Y — covers all liquid Deribit expiries
-
-MIN_MARK_PRICE_BTC = 0.0005  # price floor — near-zero marks have unreliable mark_iv
-
-MIN_MARK_IV = 0.05
-MAX_MARK_IV = 5.00
-
 GRID_COLUMNS = ["expiry", "tte_years", "delta", "mark_iv", "option_type"]
-
-_SQRT2 = sqrt(2.0)
-_erf = np.vectorize(erf, otypes=[float])
-
-
-def norm_cdf(x: np.ndarray) -> np.ndarray:
-    return 0.5 * (1.0 + _erf(x / _SQRT2))
-
-
-def black76_delta(
-    forward: np.ndarray,
-    strike: np.ndarray,
-    tte_years: np.ndarray,
-    sigma: np.ndarray,
-    is_call: np.ndarray,
-) -> np.ndarray:
-    """Forward (Black-76) delta; NaN where inputs are invalid."""
-    valid = (forward > 0) & (strike > 0) & (tte_years > 0) & (sigma > 0)
-    with np.errstate(divide="ignore", invalid="ignore"):
-        d1 = (np.log(forward / strike) + 0.5 * sigma * sigma * tte_years) / (
-            sigma * np.sqrt(tte_years)
-        )
-    call_delta = norm_cdf(d1)
-    delta = np.where(is_call, call_delta, call_delta - 1.0)
-    return np.where(valid, delta, np.nan)
-
-
-def _empty_grid() -> pd.DataFrame:
-    return pd.DataFrame(
-        {
-            "expiry": pd.Series([], dtype="datetime64[ns, UTC]"),
-            "tte_years": pd.Series([], dtype="float64"),
-            "delta": pd.Series([], dtype="float64"),
-            "mark_iv": pd.Series([], dtype="float64"),
-            "option_type": pd.Series([], dtype="object"),
-        }
-    )
 
 
 def build_surface(summaries: list[dict], spot: float) -> pd.DataFrame:
-    logger.debug("received %d raw instruments, spot=%.2f", len(summaries), spot)
-    if not summaries:
-        logger.warning("no summaries were provided to build IV surface")
-        return _empty_grid()
-
-    df = pd.DataFrame(summaries)
-    parts = df["instrument_name"].str.split("-", expand=True)
-    df["expiry"] = pd.to_datetime(parts[1], format="%d%b%y", utc=True) + pd.Timedelta(hours=8)
-    df["strike"] = parts[2].astype(float)
-    df["option_type"] = parts[3]
-
-    now = pd.Timestamp.now(tz="UTC")
-    df["tte_years"] = (df["expiry"] - now).dt.total_seconds() / (365.25 * 24 * 3600)
-
-    df["mark_iv"] = pd.to_numeric(df["mark_iv"], errors="coerce") / 100.0
-    df["mark_price"] = pd.to_numeric(df["mark_price"], errors="coerce")
-    df["bid_price"] = pd.to_numeric(df.get("bid_price", np.nan), errors="coerce")
-
-    # use the per-instrument forward for moneyness, falling back to spot.
-    df["forward"] = pd.to_numeric(df.get("underlying_price", np.nan), errors="coerce")
-    df["forward"] = df["forward"].fillna(spot)
-
-    df = df.dropna(subset=["mark_iv", "mark_price"])
-    df = df[
-        (df["mark_iv"] >= MIN_MARK_IV)
-        & (df["mark_iv"] <= MAX_MARK_IV)
-        & (df["tte_years"] >= MIN_TTE_DAYS / 365.25)
-        & (df["tte_years"] <= MAX_TTE_DAYS / 365.25)
-        & (df["mark_price"] >= MIN_MARK_PRICE_BTC)
-        # no-bid books have unreliable mark_iv
-        & (df["bid_price"] > 0)
-    ].copy()
-    if df.empty:
-        logger.warning("no rows survived quote/expiry filters")
-        return _empty_grid()
-
-    df["delta"] = black76_delta(
-        df["forward"].to_numpy(dtype=float),
-        df["strike"].to_numpy(dtype=float),
-        df["tte_years"].to_numpy(dtype=float),
-        df["mark_iv"].to_numpy(dtype=float),
-        (df["option_type"] == "C").to_numpy(),
-    )
-    df = df.dropna(subset=["delta"])
-    df = df[df["delta"].abs() <= DELTA_LIMIT]
-
-    grid = df[GRID_COLUMNS].reset_index(drop=True)
-    logger.info(
-        "%d raw -> %d OTM rows across %d expiries",
-        len(summaries),
-        len(grid),
-        grid["expiry"].nunique(),
-    )
-    return grid
+    """BTC IV surface grid: OTM quotes keyed by (delta, expiry)."""
+    logger.info("building IV surface from %d summaries", len(summaries))
+    return prepare_quotes(summaries, spot)[GRID_COLUMNS]
