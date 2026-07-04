@@ -28,8 +28,8 @@ MAX_MARK_IV = 5.00
 
 # Parsed + filtered OTM quotes, shared by the surface (delta-keyed), curves
 # (strike-keyed) and greeks builders. `forward` is retained so the greeks
-# (gamma/theta/vega) can be computed without re-deriving it. Each downstream
-# builder projects the columns it needs.
+# (gamma/theta/vega) can be computed without re-deriving it.
+# Each downstream builder projects the columns it needs.
 PREPARED_COLUMNS = [
     "expiry",
     "tte_years",

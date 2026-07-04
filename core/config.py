@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173,http://localhost:8080"
     supported_currencies: str = "BTC"
     log_level: str = "INFO"
+    cache_ttl_seconds: int = 20
 
     @property
     def cors_origin_list(self) -> list[str]:

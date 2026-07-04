@@ -13,7 +13,7 @@ from schemas.iv import (
     IVSurfaceResponse,
     SurfacePoint,
 )
-from shared.market_data import load_market_data, validate_currency
+from shared.market_data import load_or_get_cached, validate_currency
 from iv import curves, surface
 
 logger = logging.getLogger(__name__)
@@ -25,9 +25,9 @@ router = APIRouter(prefix="/iv", tags=["volatility"])
 def get_iv_surface(currency: str = Query("BTC")) -> IVSurfaceResponse:
     """BTC options implied-volatility surface: (delta, expiry) -> IV, plus axis ticks."""
     cur = validate_currency(currency)
-    spot, summaries = load_market_data(cur)
+    spot, summaries = load_or_get_cached(cur)
 
-    grid = surface.build(summaries, spot)
+    grid = surface.build(summaries)
 
     points = [
         SurfacePoint(
@@ -52,9 +52,9 @@ def get_iv_surface(currency: str = Query("BTC")) -> IVSurfaceResponse:
 def get_iv_curves(currency: str = Query("BTC")) -> IVCurvesResponse:
     """BTC options implied-volatility smile curves: (strike, expiry) -> IV, one curve per expiry."""
     cur = validate_currency(currency)
-    spot, summaries = load_market_data(cur)
+    spot, summaries = load_or_get_cached(cur)
 
-    grid = curves.build(summaries, spot)
+    grid = curves.build(summaries)
 
     points = [
         CurvePoint(

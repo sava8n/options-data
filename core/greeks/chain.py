@@ -7,7 +7,6 @@ import logging
 import pandas as pd
 
 from greeks import delta, gamma, theta, vega
-from shared.quotes import prepare_quotes
 
 logger = logging.getLogger(__name__)
 
@@ -18,18 +17,18 @@ GREEKS = {module.NAME: module for module in (delta, gamma, theta, vega)}
 GREEK_COLUMNS = ["expiry", "tte_years", "strike", "value", "option_type"]
 
 
-def build_greek(summaries: list[dict], spot: float, greek: str) -> pd.DataFrame:
+def build_greek(prepared: pd.DataFrame, greek: str) -> pd.DataFrame:
     """OTM per-contract values of ``greek`` keyed by (strike, expiry)."""
     if greek not in GREEKS:
         raise ValueError(f"unknown greek '{greek}'; expected one of {sorted(GREEKS)}")
 
     logger.info("building %s greek", greek)
-    quotes = prepare_quotes(summaries, spot)
-    quotes["value"] = GREEKS[greek].compute(
-        quotes["forward"].to_numpy(dtype=float),
-        quotes["strike"].to_numpy(dtype=float),
-        quotes["tte_years"].to_numpy(dtype=float),
-        quotes["mark_iv"].to_numpy(dtype=float),
-        (quotes["option_type"] == "C").to_numpy(),
+    result = prepared[["expiry", "tte_years", "strike", "option_type"]].copy()
+    result["value"] = GREEKS[greek].compute(
+        prepared["forward"].to_numpy(dtype=float),
+        prepared["strike"].to_numpy(dtype=float),
+        prepared["tte_years"].to_numpy(dtype=float),
+        prepared["mark_iv"].to_numpy(dtype=float),
+        (prepared["option_type"] == "C").to_numpy(),
     )
-    return quotes[GREEK_COLUMNS]
+    return result[GREEK_COLUMNS]

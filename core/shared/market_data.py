@@ -4,13 +4,22 @@ from __future__ import annotations
 
 import logging
 
+import pandas as pd
 from fastapi import HTTPException
 
 from config import settings
 from clients import deribit
 from clients.deribit import DeribitError
+from shared.cache import TTLCache
+from shared.quotes import prepare_quotes
 
 logger = logging.getLogger(__name__)
+
+# Prepared OTM quote tables are memoized by currency so the per-request
+# builders in one refresh window share a single quotes pass instead of
+# each re-parsing the whole option chain.
+# TTL matches the upstream book cache.
+_cache = TTLCache(settings.cache_ttl_seconds)
 
 
 def validate_currency(currency: str) -> str:
@@ -32,3 +41,17 @@ def load_market_data(cur: str) -> tuple[float, list[dict]]:
         logger.warning("cannot fetch upstream data for currency=%s, %s", cur, exc)
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     return spot, summaries
+
+
+def load_or_get_cached(cur: str) -> tuple[float, pd.DataFrame]:
+    """Spot and the prepared OTM quote table for ``cur``, memoized by currency.
+
+    The returned DataFrame is shared across callers within the TTL, must be treated
+    as read-only by builders.
+    """
+
+    def producer() -> tuple[float, pd.DataFrame]:
+        spot, summaries = load_market_data(cur)
+        return spot, prepare_quotes(summaries, spot)
+
+    return _cache.get_or_compute(f"prepared:{cur}", producer)

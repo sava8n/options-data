@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Query
 
 from schemas.greeks import GreekPoint, GreeksResponse
-from shared.market_data import load_market_data, validate_currency
+from shared.market_data import load_or_get_cached, validate_currency
 from greeks.chain import build_greek
 
 logger = logging.getLogger(__name__)
@@ -18,9 +18,9 @@ router = APIRouter(prefix="/greeks", tags=["greeks"])
 
 def _greek_response(greek: str, currency: str) -> GreeksResponse:
     cur = validate_currency(currency)
-    spot, summaries = load_market_data(cur)
+    spot, summaries = load_or_get_cached(cur)
 
-    frame = build_greek(summaries, spot, greek)
+    frame = build_greek(summaries, greek)
     points = [
         GreekPoint(
             expiry=row.expiry.to_pydatetime(),
