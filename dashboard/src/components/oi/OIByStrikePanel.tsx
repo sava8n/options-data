@@ -73,6 +73,7 @@ export default function OIByStrikePanel({ data }: { data: OIByStrikeResponse }) 
         // flat scalar array: index -> strike category, value -> intrinsic (USD).
         data: rows.map((p) => p.intrinsic_value ?? 0),
         itemStyle: { color: RED },
+        tooltip: { valueFormatter: (v: number | string) => usdShort(Number(v)) },
         // vertical dashed line at the max-pain strike.
         markLine: {
           symbol: 'none',
@@ -101,11 +102,8 @@ export default function OIByStrikePanel({ data }: { data: OIByStrikeResponse }) 
         ...tooltipStyle,
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
-        valueFormatter: (v: number | string) => {
-          // heuristic: large magnitudes are intrinsic-value dollars, else contracts.
-          const n = Number(v);
-          return Math.abs(n) >= 100000 ? usdShort(n) : oiFmt(n);
-        },
+        // contracts for the OI bars; the intrinsic series overrides with dollars.
+        valueFormatter: (v: number | string) => oiFmt(Number(v)),
       },
       grid: { left: 56, right: hasIntrinsic ? 64 : 18, top: 40, bottom: 60 },
       xAxis: {
