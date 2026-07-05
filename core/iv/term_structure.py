@@ -42,14 +42,14 @@ def _atm_iv(group: pd.DataFrame, fwd: float) -> float | None:
     return float(np.interp(0.0, np.log(strikes / fwd), ivs))
 
 
-def build(prepared: pd.DataFrame) -> pd.DataFrame:
+def build(prepared_quotes: pd.DataFrame) -> pd.DataFrame:
     """BTC ATM IV term structure: one interpolated ATM IV per expiry, sorted by tte."""
     logger.info("building term structure")
-    if prepared.empty:
+    if prepared_quotes.empty:
         return _empty_term()
 
     rows = []
-    for expiry, group in prepared.groupby("expiry", sort=False):
+    for expiry, group in prepared_quotes.groupby("expiry", sort=False):
         fwd = float(group["forward"].median())
         atm_iv = _atm_iv(group, fwd)
         if atm_iv is None or not np.isfinite(atm_iv):

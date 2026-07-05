@@ -15,7 +15,7 @@ from schemas.iv import (
     TermStructurePoint,
     TermStructureResponse,
 )
-from shared.market_data import load_or_get_cached, validate_currency
+from shared.market_data import load_otm_quotes, validate_currency
 from iv import curves, surface, term_structure
 
 logger = logging.getLogger(__name__)
@@ -27,9 +27,9 @@ router = APIRouter(prefix="/iv", tags=["volatility"])
 def get_iv_surface(currency: str = Query("BTC")) -> IVSurfaceResponse:
     """BTC options implied-volatility surface: (delta, expiry) -> IV, plus axis ticks."""
     cur = validate_currency(currency)
-    spot, summaries = load_or_get_cached(cur)
+    spot, otm_quotes = load_otm_quotes(cur)
 
-    grid = surface.build(summaries)
+    grid = surface.build(otm_quotes)
 
     points = [
         SurfacePoint(
@@ -54,9 +54,9 @@ def get_iv_surface(currency: str = Query("BTC")) -> IVSurfaceResponse:
 def get_iv_curves(currency: str = Query("BTC")) -> IVCurvesResponse:
     """BTC options implied-volatility smile curves: (strike, expiry) -> IV, one curve per expiry."""
     cur = validate_currency(currency)
-    spot, summaries = load_or_get_cached(cur)
+    spot, otm_quotes = load_otm_quotes(cur)
 
-    grid = curves.build(summaries)
+    grid = curves.build(otm_quotes)
 
     points = [
         CurvePoint(
@@ -81,9 +81,9 @@ def get_iv_curves(currency: str = Query("BTC")) -> IVCurvesResponse:
 def get_iv_term_structure(currency: str = Query("BTC")) -> TermStructureResponse:
     """BTC options ATM implied-volatility term structure: one ATM IV per expiry."""
     cur = validate_currency(currency)
-    spot, summaries = load_or_get_cached(cur)
+    spot, otm_quotes = load_otm_quotes(cur)
 
-    grid = term_structure.build(summaries)
+    grid = term_structure.build(otm_quotes)
 
     points = [
         TermStructurePoint(

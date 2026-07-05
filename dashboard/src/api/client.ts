@@ -2,6 +2,7 @@ import type {
   GreeksResponse,
   IVCurvesResponse,
   IVSurfaceResponse,
+  OIByExpirationResponse,
   SummaryResponse,
   TermStructureResponse,
 } from '../types';
@@ -40,6 +41,14 @@ export async function fetchTermStructure(currency = 'BTC'): Promise<TermStructur
 export async function fetchGreek(greek: GreekName, currency = 'BTC'): Promise<GreeksResponse> {
   return fetchJson<GreeksResponse>(
     `/api/greeks/${greek}?currency=${encodeURIComponent(currency)}`,
+  );
+}
+
+export async function fetchOIByExpiration(
+  currency = 'BTC',
+): Promise<OIByExpirationResponse> {
+  return fetchJson<OIByExpirationResponse>(
+    `/api/oi/expiration?currency=${encodeURIComponent(currency)}`,
   );
 }
 

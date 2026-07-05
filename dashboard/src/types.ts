@@ -67,3 +67,19 @@ export interface SummaryResponse {
   instrument_count: number;
   expiry_count: number;
 }
+
+export interface OIByExpirationPoint {
+  expiry: string;
+  tte_years: number;
+  itm_calls: number;
+  otm_calls: number;
+  itm_puts: number;
+  otm_puts: number;
+}
+
+export interface OIByExpirationResponse {
+  currency: string;
+  spot: number;
+  as_of: string;
+  points: OIByExpirationPoint[];
+}

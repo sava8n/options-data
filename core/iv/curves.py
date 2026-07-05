@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 CURVE_COLUMNS = ["expiry", "tte_years", "strike", "mark_iv", "option_type"]
 
 
-def build(prepared: pd.DataFrame) -> pd.DataFrame:
+def build(prepared_quotes: pd.DataFrame) -> pd.DataFrame:
     """BTC IV smile curves: OTM quotes keyed by (strike, expiry)."""
     logger.info("building IV curves")
-    return prepared[CURVE_COLUMNS]
+    return prepared_quotes[CURVE_COLUMNS]

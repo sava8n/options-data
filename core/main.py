@@ -10,6 +10,7 @@ from log_config import setup_logging
 from routers.health import router as health_router
 from routers.iv import router as iv_router
 from routers.greeks import router as greeks_router
+from routers.oi import router as oi_router
 from routers.summary import router as summary_router
 
 setup_logging(settings.log_level)
@@ -31,4 +32,5 @@ server.add_middleware(
 server.include_router(health_router, prefix="/api")
 server.include_router(iv_router, prefix="/api")
 server.include_router(greeks_router, prefix="/api")
+server.include_router(oi_router, prefix="/api")
 server.include_router(summary_router, prefix="/api")

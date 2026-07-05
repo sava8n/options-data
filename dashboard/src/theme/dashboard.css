@@ -14,6 +14,12 @@
   --red: #ff3b30;
   --yellow: #ffd24a;
   --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', 'Menlo', 'Consolas', monospace;
+
+  /* layout scale */
+  --gap: 10px;
+  --panel-h: 480px; /* panels-row cell */
+  --panel-h-wide: 420px; /* full-width standalone panel */
+  --panel-h-mini: 240px; /* greek mini-panel */
 }
 
 * {
@@ -40,7 +46,6 @@ body {
 /* ---- Layout ---- */
 .dashboard {
   display: grid;
-  grid-template-rows: auto auto auto auto;
   min-height: 100%;
   background: var(--bg);
 }
@@ -136,12 +141,12 @@ body {
 .panels {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin: 10px;
+  gap: var(--gap);
+  margin: var(--gap);
 }
 
 .panels > .panel {
-  height: 480px;
+  height: var(--panel-h);
 }
 
 /* ---- Panel ---- */
@@ -152,6 +157,12 @@ body {
   background: var(--bg-panel);
   min-height: 0;
   min-width: 0;
+}
+
+/* full-width standalone panel (e.g. open interest by expiration) */
+.panel--full {
+  height: var(--panel-h-wide);
+  margin: var(--gap) var(--gap) 0;
 }
 
 @media (max-width: 900px) {
@@ -210,7 +221,7 @@ body {
 
 /* ---- Greeks section (delta | gamma | theta | vega) ---- */
 .greeks {
-  margin: 10px 10px 0;
+  margin: var(--gap) var(--gap) 0;
   border: 1px solid var(--border-bright);
   background: var(--bg-panel);
 }
@@ -269,12 +280,12 @@ body {
 .greeks__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  padding: 10px;
+  gap: var(--gap);
+  padding: var(--gap);
 }
 
 .greek-panel {
-  height: 240px;
+  height: var(--panel-h-mini);
 }
 
 @media (max-width: 900px) {
