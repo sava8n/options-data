@@ -37,7 +37,7 @@ def build(prepared_chain: pd.DataFrame) -> pd.DataFrame:
     (at-the-money strikes fall to OTM). Open interest is Deribit's per-contract
     count and is summed within each (expiry, bucket). Rows are sorted by tte.
     """
-    logger.info("building OI by expiration")
+    logger.info("building open interest by expiration")
     if prepared_chain.empty:
         return _empty_oi_by_expiration()
 
@@ -77,5 +77,5 @@ def build(prepared_chain: pd.DataFrame) -> pd.DataFrame:
     result["expiry"] = pd.to_datetime(result["expiry"], utc=True)
     result = result[OI_BY_EXPIRATION_COLUMNS]
 
-    logger.info("OI by expiration built for %d expiries", len(result))
+    logger.info("open interest by expiration built for %d expiries", len(result))
     return result

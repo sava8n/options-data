@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from typing import NamedTuple
 
 import pandas as pd
 from fastapi import HTTPException
@@ -15,10 +16,16 @@ from shared.quotes import prepare_oi_chain, prepare_otm_quotes
 
 logger = logging.getLogger(__name__)
 
-# Prepared tables are memoized so the per-request builders in one refresh window
-# share a single quotes pass instead of each re-parsing the whole option chain.
-# TTL matches the upstream book cache.
+# One snapshot per currency: a single upstream round-trip (spot + option book) feeds
+# every endpoint, so all views within a TTL window see the same market state and
+# concurrent misses collapse on one per-key lock.
 _cache = TTLCache(settings.cache_ttl_seconds)
+
+
+class MarketSnapshot(NamedTuple):
+    spot: float
+    otm_quotes: pd.DataFrame  # shared across requests; treat as read-only
+    oi_chain: pd.DataFrame  # shared across requests; treat as read-only
 
 
 def validate_currency(currency: str) -> str:
@@ -32,45 +39,32 @@ def validate_currency(currency: str) -> str:
     return cur
 
 
+def _load_snapshot(cur: str) -> MarketSnapshot:
+    def producer() -> MarketSnapshot:
+        try:
+            spot = deribit.fetch_spot(cur)
+            summaries = deribit.fetch_option_summaries(cur)
+        except DeribitError as exc:
+            logger.warning("cannot fetch upstream data for currency=%s, %s", cur, exc)
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+        return MarketSnapshot(
+            spot=spot,
+            otm_quotes=prepare_otm_quotes(summaries, spot),
+            oi_chain=prepare_oi_chain(summaries, spot),
+        )
+
+    return _cache.get_or_compute(f"market:{cur}", producer)
+
+
 def load_spot(cur: str) -> float:
-    try:
-        return deribit.fetch_spot(cur)
-    except DeribitError as exc:
-        logger.warning("cannot fetch spot for currency=%s, %s", cur, exc)
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
-
-
-def load_market_data(cur: str) -> tuple[float, list[dict]]:
-    try:
-        spot = deribit.fetch_spot(cur)
-        summaries = deribit.fetch_option_summaries(cur)
-    except DeribitError as exc:
-        logger.warning("cannot fetch upstream data for currency=%s, %s", cur, exc)
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
-    return spot, summaries
+    return _load_snapshot(cur).spot
 
 
 def load_otm_quotes(cur: str) -> tuple[float, pd.DataFrame]:
-    """Spot and the prepared OTM quote table for ``cur``, memoized by currency.
-
-    The returned DataFrame is shared across callers within the TTL and must be treated as read-only.
-    """
-
-    def producer() -> tuple[float, pd.DataFrame]:
-        spot, summaries = load_market_data(cur)
-        return spot, prepare_otm_quotes(summaries, spot)
-
-    return _cache.get_or_compute(f"prepared:{cur}", producer)
+    snapshot = _load_snapshot(cur)
+    return snapshot.spot, snapshot.otm_quotes
 
 
 def load_oi_chain(cur: str) -> tuple[float, pd.DataFrame]:
-    """Spot and the prepared full-chain open-interest table for ``cur``, memoized by currency.
-
-    The returned DataFrame is shared across callers within the TTL and must be treated as read-only.
-    """
-
-    def producer() -> tuple[float, pd.DataFrame]:
-        spot, summaries = load_market_data(cur)
-        return spot, prepare_oi_chain(summaries, spot)
-
-    return _cache.get_or_compute(f"oi_prepared:{cur}", producer)
+    snapshot = _load_snapshot(cur)
+    return snapshot.spot, snapshot.oi_chain

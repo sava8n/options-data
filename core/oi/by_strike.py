@@ -37,7 +37,7 @@ def build(prepared_chain: pd.DataFrame) -> pd.DataFrame:
     count and is summed within each (strike, bucket). Rows are sorted by strike.
     The chain may be the full chain or a single-expiry slice.
     """
-    logger.info("building OI by strike")
+    logger.info("building open interest by strike")
     if prepared_chain.empty:
         return _empty_oi_by_strike()
 
@@ -70,7 +70,7 @@ def build(prepared_chain: pd.DataFrame) -> pd.DataFrame:
     result = pivot.reset_index().sort_values("strike").reset_index(drop=True)
     result = result[OI_BY_STRIKE_COLUMNS]
 
-    logger.info("OI by strike built for %d strikes", len(result))
+    logger.info("open interest by strike built for %d strikes", len(result))
     return result
 
 

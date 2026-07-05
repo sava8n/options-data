@@ -1,4 +1,4 @@
-"""Shared Deribit public-API client backed by an in-memory TTL cache."""
+"""Deribit public API client."""
 
 from __future__ import annotations
 
@@ -9,15 +9,10 @@ from typing import Any
 import certifi
 import requests
 
-from config import settings
-from shared.cache import TTLCache
-
 logger = logging.getLogger(__name__)
 
 DERIBIT_API = "https://www.deribit.com/api/v2"
 HTTP_TIMEOUT = 10
-
-_cache = TTLCache(settings.cache_ttl_seconds)
 
 
 class DeribitError(RuntimeError):
@@ -43,25 +38,14 @@ def _get(path: str, params: dict) -> Any:
 
 
 def fetch_spot(currency: str = "BTC") -> float:
-    """Return the current USD index price for ``currency`` (default BTC)."""
-    cur = currency.upper()
-    index_name = f"{cur.lower()}_usd"
-
-    def producer() -> float:
-        result = _get("/public/get_index_price", {"index_name": index_name})
-        return float(result["index_price"])
-
-    return _cache.get_or_compute(f"spot:{cur}", producer)
+    """Current USD index price for ``currency``, from Deribit's ``<currency>_usd`` index."""
+    result = _get("/public/get_index_price", {"index_name": f"{currency.lower()}_usd"})
+    return float(result["index_price"])
 
 
 def fetch_option_summaries(currency: str = "BTC") -> list[dict]:
-    """Return the full option book summary for ``currency`` (default BTC)."""
-    cur = currency.upper()
-
-    def producer() -> list[dict]:
-        return _get(
-            "/public/get_book_summary_by_currency",
-            {"currency": cur, "kind": "option"},
-        )
-
-    return _cache.get_or_compute(f"summaries:{cur}", producer)
+    """Full option book summary for ``currency``."""
+    return _get(
+        "/public/get_book_summary_by_currency",
+        {"currency": currency.upper(), "kind": "option"},
+    )
