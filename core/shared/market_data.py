@@ -32,6 +32,14 @@ def validate_currency(currency: str) -> str:
     return cur
 
 
+def load_spot(cur: str) -> float:
+    try:
+        return deribit.fetch_spot(cur)
+    except DeribitError as exc:
+        logger.warning("cannot fetch spot for currency=%s, %s", cur, exc)
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+
 def load_market_data(cur: str) -> tuple[float, list[dict]]:
     try:
         spot = deribit.fetch_spot(cur)

@@ -4,7 +4,7 @@ import type {
   IVSurfaceResponse,
   OIByExpirationResponse,
   OIByStrikeResponse,
-  SummaryResponse,
+  SpotResponse,
   TermStructureResponse,
 } from '../types';
 
@@ -62,6 +62,6 @@ export async function fetchOIByStrike(
   return fetchJson<OIByStrikeResponse>(`/api/oi/strike?${params.toString()}`);
 }
 
-export async function fetchSummary(currency = 'BTC'): Promise<SummaryResponse> {
-  return fetchJson<SummaryResponse>(`/api/summary?currency=${encodeURIComponent(currency)}`);
+export async function fetchSpot(currency = 'BTC'): Promise<SpotResponse> {
+  return fetchJson<SpotResponse>(`/api/spot?currency=${encodeURIComponent(currency)}`);
 }

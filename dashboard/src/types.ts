@@ -60,12 +60,10 @@ export interface GreeksResponse {
   points: GreekPoint[];
 }
 
-export interface SummaryResponse {
+export interface SpotResponse {
   currency: string;
   spot: number;
   as_of: string;
-  instrument_count: number;
-  expiry_count: number;
 }
 
 export interface OIByExpirationPoint {

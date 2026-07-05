@@ -102,7 +102,6 @@ export default function OIByStrikePanel({ data }: { data: OIByStrikeResponse }) 
         ...tooltipStyle,
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
-        // contracts for the OI bars; the intrinsic series overrides with dollars.
         valueFormatter: (v: number | string) => oiFmt(Number(v)),
       },
       grid: { left: 56, right: hasIntrinsic ? 64 : 18, top: 40, bottom: 60 },

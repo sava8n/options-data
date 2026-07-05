@@ -1,13 +1,8 @@
-import { useSummary } from '../hooks/useSummary';
+import { useSpot } from '../hooks/useSpot';
 
 function formatSpot(spot?: number): string {
   if (spot == null) return '—';
   return spot.toLocaleString('en-US', { maximumFractionDigits: 0 });
-}
-
-function formatAsOf(iso?: string): string {
-  if (!iso) return '—';
-  return new Date(iso).toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
 }
 
 function Field({ k, v, amber }: { k: string; v: string; amber?: boolean }) {
@@ -20,9 +15,7 @@ function Field({ k, v, amber }: { k: string; v: string; amber?: boolean }) {
 }
 
 export default function Header({ currency }: { currency: string }) {
-  const { data, isFetching, isError } = useSummary(currency);
-  const status = isError ? 'OFFLINE' : isFetching ? 'SYNC' : 'LIVE';
-  const statusClass = isError ? 'tag--err' : isFetching ? 'tag--warn' : 'tag--ok';
+  const { data } = useSpot(currency);
 
   return (
     <header className="header">
@@ -30,12 +23,7 @@ export default function Header({ currency }: { currency: string }) {
       <div className="header__fields">
         <Field k="SYM" v={`${currency}-USD`} />
         <Field k="SPOT" v={`$${formatSpot(data?.spot)}`} amber />
-        <Field k="AS OF" v={formatAsOf(data?.as_of)} />
         <Field k="SRC" v="DERIBIT" />
-      </div>
-      <div className={`tag ${statusClass}`}>
-        <span className="tag__dot" />
-        {status}
       </div>
     </header>
   );
