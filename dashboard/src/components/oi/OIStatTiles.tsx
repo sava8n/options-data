@@ -1,11 +1,6 @@
 import { useMemo } from 'react';
 import type { OIByStrikeResponse } from '../../types';
-
-// open interest (contracts): rounded to whole contracts
-const oiFmt = (v: number) => v.toLocaleString('en-US', { maximumFractionDigits: 0 });
-// full USD: 145783260.61 -> "$145,783,260.61".
-const usdFmt = (v: number) =>
-  `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+import { oiFull, usdFull } from '../../utils/format';
 
 function Tile({ label, value, accent }: { label: string; value: string; accent: string }) {
   return (
@@ -37,17 +32,17 @@ export default function OIStatTiles({ data }: { data: OIByStrikeResponse }) {
 
   return (
     <div className="oi-stats">
-      <Tile label="CALL OPEN INTEREST" value={oiFmt(stats.callOI)} accent="call" />
-      <Tile label="PUT OPEN INTEREST" value={oiFmt(stats.putOI)} accent="put" />
-      <Tile label="TOTAL OPEN INTEREST" value={oiFmt(stats.totalOI)} accent="total" />
+      <Tile label="CALL OPEN INTEREST" value={oiFull(stats.callOI)} accent="call" />
+      <Tile label="PUT OPEN INTEREST" value={oiFull(stats.putOI)} accent="put" />
+      <Tile label="TOTAL OPEN INTEREST" value={oiFull(stats.totalOI)} accent="total" />
       <Tile
         label="PUT/CALL RATIO"
         value={stats.pcRatio != null ? stats.pcRatio.toFixed(2) : '—'}
         accent="pcr"
       />
-      <Tile label="NOTIONAL VALUE" value={usdFmt(stats.notional)} accent="notional" />
+      <Tile label="NOTIONAL VALUE" value={usdFull(stats.notional)} accent="notional" />
       {stats.maxPain != null && (
-        <Tile label="MAX PAIN PRICE" value={usdFmt(stats.maxPain)} accent="maxpain" />
+        <Tile label="MAX PAIN PRICE" value={usdFull(stats.maxPain)} accent="maxpain" />
       )}
     </div>
   );

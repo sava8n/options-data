@@ -2,45 +2,18 @@ import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 
-import type { OIByStrikePoint, OIByStrikeResponse } from '../../types';
-import { strikeFmt } from '../../utils/format';
+import type { OIByStrikeResponse } from '../../types';
+import { oiFmt, strikeFmt, usdFull, usdShort } from '../../utils/format';
+import {
+  AXIS_LINE,
+  GRID,
+  OI_SERIES,
+  axisLabelStyle,
+  axisNameStyle,
+  tooltipStyle,
+} from '../../theme/charts';
 
-const GRID = '#243133';
-const AXIS_LINE = '#3a4a4d';
-const LABEL = '#ffb000';
 const RED = '#ff3b30'; // intrinsic value / max pain
-const MONO = 'monospace';
-
-// calls = teal, puts = amber; ITM brighter, OTM deeper.
-const SERIES = [
-  { key: 'itm_calls', name: 'ITM Calls', color: '#5fded0', stack: 'calls' },
-  { key: 'otm_calls', name: 'OTM Calls', color: '#178f80', stack: 'calls' },
-  { key: 'itm_puts', name: 'ITM Puts', color: '#ffcf4d', stack: 'puts' },
-  { key: 'otm_puts', name: 'OTM Puts', color: '#c8860b', stack: 'puts' },
-] as const satisfies ReadonlyArray<{
-  key: keyof OIByStrikePoint;
-  name: string;
-  color: string;
-  stack: string;
-}>;
-
-// open interest (contracts): 62000 -> "62k".
-const oiFmt = (v: number) =>
-  v >= 1000
-    ? `${(v / 1000).toLocaleString('en-US', { maximumFractionDigits: 1 })}k`
-    : `${Math.round(v)}`;
-
-// intrinsic value (USD): 12_500_000 -> "$12.5M".
-const usdShort = (v: number) => {
-  if (Math.abs(v) >= 1e9) return `$${(v / 1e9).toLocaleString('en-US', { maximumFractionDigits: 1 })}B`;
-  if (Math.abs(v) >= 1e6) return `$${(v / 1e6).toLocaleString('en-US', { maximumFractionDigits: 1 })}M`;
-  if (Math.abs(v) >= 1e3) return `$${(v / 1e3).toLocaleString('en-US', { maximumFractionDigits: 1 })}k`;
-  return `$${Math.round(v)}`;
-};
-
-// max-pain label: 61500 -> "$61,500.00".
-const usdFull = (v: number) =>
-  `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export default function OIByStrikePanel({ data }: { data: OIByStrikeResponse }) {
   const option = useMemo<EChartsOption>(() => {
@@ -52,10 +25,7 @@ export default function OIByStrikePanel({ data }: { data: OIByStrikeResponse }) 
     const hasIntrinsic = data.max_pain != null;
     const maxPainIdx = data.max_pain != null ? rows.findIndex((p) => p.strike === data.max_pain) : -1;
 
-    const axisLabelStyle = { color: LABEL, fontFamily: MONO, fontSize: 11 };
-    const nameStyle = { color: LABEL, fontFamily: MONO, fontSize: 13 };
-
-    const legend: string[] = SERIES.map((s) => s.name);
+    const legend: string[] = OI_SERIES.map((s) => s.name);
     if (hasIntrinsic) legend.push('Total Intrinsic Value');
 
     const yAxis: unknown[] = [
@@ -63,7 +33,7 @@ export default function OIByStrikePanel({ data }: { data: OIByStrikeResponse }) 
         type: 'value',
         name: 'OI',
         nameGap: 12,
-        nameTextStyle: nameStyle,
+        nameTextStyle: axisNameStyle,
         axisLine: { lineStyle: { color: AXIS_LINE } },
         axisTick: { lineStyle: { color: AXIS_LINE } },
         axisLabel: { ...axisLabelStyle, formatter: oiFmt },
@@ -75,16 +45,16 @@ export default function OIByStrikePanel({ data }: { data: OIByStrikeResponse }) 
         type: 'value',
         name: 'INTRINSIC',
         nameGap: 12,
-        nameTextStyle: { ...nameStyle, color: RED },
+        nameTextStyle: { ...axisNameStyle, color: RED },
         position: 'right',
         axisLine: { show: true, lineStyle: { color: RED } },
         axisTick: { lineStyle: { color: RED } },
-        axisLabel: { color: RED, fontFamily: MONO, fontSize: 11, formatter: usdShort },
+        axisLabel: { ...axisLabelStyle, color: RED, formatter: usdShort },
         splitLine: { show: false },
       });
     }
 
-    const series: unknown[] = SERIES.map((s) => ({
+    const series: unknown[] = OI_SERIES.map((s) => ({
       type: 'bar',
       name: s.name,
       stack: s.stack,
@@ -109,9 +79,8 @@ export default function OIByStrikePanel({ data }: { data: OIByStrikeResponse }) 
           silent: true,
           lineStyle: { color: RED, type: 'dashed', width: 1 },
           label: {
+            ...axisLabelStyle,
             color: RED,
-            fontFamily: MONO,
-            fontSize: 11,
             formatter: () => `Max Pain ${usdFull(data.max_pain as number)}`,
           },
           data: [{ xAxis: maxPainIdx }],
@@ -126,15 +95,12 @@ export default function OIByStrikePanel({ data }: { data: OIByStrikeResponse }) 
         top: 4,
         itemWidth: 10,
         itemHeight: 10,
-        textStyle: { color: LABEL, fontFamily: MONO, fontSize: 11 },
+        textStyle: axisLabelStyle,
       },
       tooltip: {
+        ...tooltipStyle,
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
-        backgroundColor: '#0b0e10',
-        borderColor: GRID,
-        borderWidth: 1,
-        textStyle: { color: LABEL, fontFamily: MONO, fontSize: 12 },
         valueFormatter: (v: number | string) => {
           // heuristic: large magnitudes are intrinsic-value dollars, else contracts.
           const n = Number(v);

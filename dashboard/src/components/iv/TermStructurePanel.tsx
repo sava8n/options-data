@@ -3,12 +3,15 @@ import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 
 import type { TermStructureResponse } from '../../types';
-import { expiryLabel } from '../../utils/format';
-
-const AMBER = '#ffb000';
-const GRID = '#243133';
-const AXIS_LINE = '#3a4a4d';
-const MONO = 'monospace';
+import { expiryLabel, ivFmt } from '../../utils/format';
+import {
+  AMBER,
+  AXIS_LINE,
+  GRID,
+  axisLabelStyle,
+  axisNameStyle,
+  tooltipStyle,
+} from '../../theme/charts';
 
 interface TermPoint {
   dte: number;
@@ -23,19 +26,11 @@ export default function TermStructurePanel({ data }: { data: TermStructureRespon
       .map((p) => ({ dte: p.tte_years * 365.25, iv: p.atm_iv, expiry: p.expiry }))
       .sort((a, b) => a.dte - b.dte);
 
-    const axisLabelStyle = { color: AMBER, fontFamily: MONO, fontSize: 11 };
-    const nameStyle = { color: AMBER, fontFamily: MONO, fontSize: 13 };
-
-    const ivFmt = (v: number) => `${Math.round(v * 100)}%`;
-
     const opt = {
       backgroundColor: 'transparent',
       tooltip: {
+        ...tooltipStyle,
         trigger: 'item',
-        backgroundColor: '#0b0e10',
-        borderColor: GRID,
-        borderWidth: 1,
-        textStyle: { color: AMBER, fontFamily: MONO, fontSize: 12 },
         formatter: (p: { dataIndex?: number }) => {
           const r = rows[p.dataIndex ?? -1];
           if (!r) return '';
@@ -48,7 +43,7 @@ export default function TermStructurePanel({ data }: { data: TermStructureRespon
         name: 'DTE',
         nameLocation: 'middle',
         nameGap: 28,
-        nameTextStyle: nameStyle,
+        nameTextStyle: axisNameStyle,
         scale: true,
         min: 0,
         axisLine: { lineStyle: { color: AXIS_LINE } },
@@ -60,7 +55,7 @@ export default function TermStructurePanel({ data }: { data: TermStructureRespon
         type: 'value',
         name: 'IV',
         nameGap: 12,
-        nameTextStyle: nameStyle,
+        nameTextStyle: axisNameStyle,
         scale: true,
         axisLine: { lineStyle: { color: AXIS_LINE } },
         axisTick: { lineStyle: { color: AXIS_LINE } },

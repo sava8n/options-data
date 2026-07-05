@@ -6,11 +6,13 @@ import { useGreek } from '../../hooks/useGreek';
 import type { GreekName } from '../../api/client';
 import type { GreekPoint } from '../../types';
 import { strikeFmt } from '../../utils/format';
-
-const GRID = '#243133';
-const AXIS_LINE = '#3a4a4d';
-const AMBER = '#ffb000';
-const MONO = 'monospace';
+import {
+  AXIS_LINE,
+  GRID,
+  axisLabelStyle,
+  axisNameStyle,
+  tooltipStyle,
+} from '../../theme/charts';
 
 interface Props {
   greek: GreekName;
@@ -35,17 +37,15 @@ function buildOption(
     .sort((a, b) => a.strike - b.strike || a.value - b.value)
     .map((p) => [p.strike, p.value] as [number, number]);
 
-  const axisLabelStyle = { color: AMBER, fontFamily: MONO, fontSize: 10 };
-  const nameStyle = { color: AMBER, fontFamily: MONO, fontSize: 12 };
+  // compact panels in a 2x2 grid, so one point smaller than the shared styles
+  const labelStyle = { ...axisLabelStyle, fontSize: 10 };
+  const nameStyle = { ...axisNameStyle, fontSize: 12 };
 
   const opt = {
     backgroundColor: 'transparent',
     tooltip: {
+      ...tooltipStyle,
       trigger: 'item',
-      backgroundColor: '#0b0e10',
-      borderColor: GRID,
-      borderWidth: 1,
-      textStyle: { color: AMBER, fontFamily: MONO, fontSize: 12 },
       formatter: (p: { value?: number[] }) => {
         const arr = p.value ?? [];
         if (arr.length < 2) return '';
@@ -63,7 +63,7 @@ function buildOption(
       scale: true,
       axisLine: { lineStyle: { color: AXIS_LINE } },
       axisTick: { lineStyle: { color: AXIS_LINE } },
-      axisLabel: { ...axisLabelStyle, formatter: strikeFmt },
+      axisLabel: { ...labelStyle, formatter: strikeFmt },
       splitLine: { lineStyle: { color: GRID } },
     },
     yAxis: {
@@ -71,7 +71,7 @@ function buildOption(
       scale: true,
       axisLine: { lineStyle: { color: AXIS_LINE } },
       axisTick: { lineStyle: { color: AXIS_LINE } },
-      axisLabel: { ...axisLabelStyle, formatter: valueFmt },
+      axisLabel: { ...labelStyle, formatter: valueFmt },
       splitLine: { lineStyle: { color: GRID } },
     },
     series: [

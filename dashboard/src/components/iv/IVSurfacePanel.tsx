@@ -4,12 +4,17 @@ import type { EChartsOption } from 'echarts';
 import 'echarts-gl'; // registers the 3D `surface` series + grid3D/xAxis3D/... onto echarts
 
 import type { IVSurfaceResponse } from '../../types';
+import { ivFmt } from '../../utils/format';
+import {
+  AMBER,
+  AXIS_LINE,
+  GRID,
+  axisLabelStyle,
+  axisNameStyle,
+  tooltipStyle,
+} from '../../theme/charts';
 
 const BLACK = '#000000';
-const AMBER = '#ffb000';
-const GRID = '#243133';
-const AXIS_LINE = '#3a4a4d';
-const MONO = 'monospace';
 
 const DELTA_GRID_POINTS = 31; // shared moneyness-axis samples each smile is resampled onto
 
@@ -123,18 +128,13 @@ export default function IVSurfacePanel({ data }: { data: IVSurfaceResponse }) {
         month: 'short',
         year: '2-digit',
       });
-    const ivFmt = (v: number) => `${Math.round(v * 100)}%`;
-
-    const axisLabelStyle = { color: AMBER, fontFamily: MONO, fontSize: 11 };
-    const nameStyle = { color: AMBER, fontFamily: MONO, fontSize: 15 };
+    // large single-panel chart, so axis names two points above the shared style
+    const nameStyle = { ...axisNameStyle, fontSize: 15 };
 
     const opt = {
       backgroundColor: 'transparent',
       tooltip: {
-        backgroundColor: '#0b0e10',
-        borderColor: GRID,
-        borderWidth: 1,
-        textStyle: { color: AMBER, fontFamily: MONO, fontSize: 12 },
+        ...tooltipStyle,
         formatter: (p: { value?: number[]; data?: number[] }) => {
           const arr = p.value ?? p.data ?? [];
           if (arr.length < 3) return '';
@@ -154,8 +154,8 @@ export default function IVSurfacePanel({ data }: { data: IVSurfaceResponse }) {
         top: 'center',
         itemHeight: 220,
         inRange: { color: VIRIDIS },
-        textStyle: { color: AMBER, fontFamily: MONO, fontSize: 11 },
-        formatter: (v: number) => `${Math.round(v * 100)}%`,
+        textStyle: axisLabelStyle,
+        formatter: ivFmt,
         text: ['IV', ''],
       },
       xAxis3D: {

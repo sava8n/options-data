@@ -3,13 +3,18 @@ import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 
 import type { IVCurvesResponse } from '../../types';
-import { expiryLabel, strikeFmt } from '../../utils/format';
+import { expiryLabel, ivFmt, strikeFmt } from '../../utils/format';
+import {
+  AMBER,
+  AXIS_LINE,
+  GRID,
+  MONO,
+  axisLabelStyle,
+  axisNameStyle,
+  tooltipStyle,
+} from '../../theme/charts';
 
-const AMBER = '#ffb000';
-const GRID = '#243133';
-const AXIS_LINE = '#3a4a4d';
 const TEXT = '#c8d0d0';
-const MONO = 'monospace';
 
 const PALETTE = [
   '#ffb000', '#4aa3ff', '#33ff66', '#ff6b6b', '#b388ff',
@@ -52,20 +57,12 @@ export default function IVCurvesPanel({ data }: { data: IVCurvesResponse }) {
       })
       .sort((a, b) => a.tte - b.tte); // near-dated first, so legend/z-order is chronological
 
-    const axisLabelStyle = { color: AMBER, fontFamily: MONO, fontSize: 11 };
-    const nameStyle = { color: AMBER, fontFamily: MONO, fontSize: 13 };
-
-    const ivFmt = (v: number) => `${Math.round(v * 100)}%`;
-
     const opt = {
       backgroundColor: 'transparent',
       color: PALETTE,
       tooltip: {
+        ...tooltipStyle,
         trigger: 'item',
-        backgroundColor: '#0b0e10',
-        borderColor: GRID,
-        borderWidth: 1,
-        textStyle: { color: AMBER, fontFamily: MONO, fontSize: 12 },
         formatter: (p: { seriesName?: string; value?: number[] }) => {
           const arr = p.value ?? [];
           if (arr.length < 2) return '';
@@ -93,7 +90,7 @@ export default function IVCurvesPanel({ data }: { data: IVCurvesResponse }) {
         name: 'STRIKE',
         nameLocation: 'middle',
         nameGap: 28,
-        nameTextStyle: nameStyle,
+        nameTextStyle: axisNameStyle,
         scale: true,
         axisLine: { lineStyle: { color: AXIS_LINE } },
         axisTick: { lineStyle: { color: AXIS_LINE } },
@@ -104,7 +101,7 @@ export default function IVCurvesPanel({ data }: { data: IVCurvesResponse }) {
         type: 'value',
         name: 'IV',
         nameGap: 12,
-        nameTextStyle: nameStyle,
+        nameTextStyle: axisNameStyle,
         scale: true,
         axisLine: { lineStyle: { color: AXIS_LINE } },
         axisTick: { lineStyle: { color: AXIS_LINE } },

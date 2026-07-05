@@ -2,35 +2,16 @@ import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 
-import type {
-  OIByExpirationPoint,
-  OIByExpirationResponse,
-} from '../../types';
-import { expiryLabel } from '../../utils/format';
-
-const GRID = '#243133';
-const AXIS_LINE = '#3a4a4d';
-const LABEL = '#ffb000';
-const MONO = 'monospace';
-
-// calls = teal, puts = amber; ITM brighter, OTM deeper.
-const SERIES = [
-  { key: 'itm_calls', name: 'ITM Calls', color: '#5fded0', stack: 'calls' },
-  { key: 'otm_calls', name: 'OTM Calls', color: '#178f80', stack: 'calls' },
-  { key: 'itm_puts', name: 'ITM Puts', color: '#ffcf4d', stack: 'puts' },
-  { key: 'otm_puts', name: 'OTM Puts', color: '#c8860b', stack: 'puts' },
-] as const satisfies ReadonlyArray<{
-  key: keyof OIByExpirationPoint;
-  name: string;
-  color: string;
-  stack: string;
-}>;
-
-// open interest (contracts): 62000 -> "62k".
-const oiFmt = (v: number) =>
-  v >= 1000
-    ? `${(v / 1000).toLocaleString('en-US', { maximumFractionDigits: 1 })}k`
-    : `${Math.round(v)}`;
+import type { OIByExpirationResponse } from '../../types';
+import { expiryLabel, oiFmt } from '../../utils/format';
+import {
+  AXIS_LINE,
+  GRID,
+  OI_SERIES,
+  axisLabelStyle,
+  axisNameStyle,
+  tooltipStyle,
+} from '../../theme/charts';
 
 export default function OIByExpirationPanel({
   data,
@@ -42,25 +23,19 @@ export default function OIByExpirationPanel({
     const rows = [...data.points].sort((a, b) => a.tte_years - b.tte_years);
     const labels = rows.map((p) => expiryLabel(p.expiry));
 
-    const axisLabelStyle = { color: LABEL, fontFamily: MONO, fontSize: 11 };
-    const nameStyle = { color: LABEL, fontFamily: MONO, fontSize: 13 };
-
     const opt = {
       backgroundColor: 'transparent',
       legend: {
-        data: SERIES.map((s) => s.name),
+        data: OI_SERIES.map((s) => s.name),
         top: 4,
         itemWidth: 10,
         itemHeight: 10,
-        textStyle: { color: LABEL, fontFamily: MONO, fontSize: 11 },
+        textStyle: axisLabelStyle,
       },
       tooltip: {
+        ...tooltipStyle,
         trigger: 'axis',
         axisPointer: { type: 'shadow' },
-        backgroundColor: '#0b0e10',
-        borderColor: GRID,
-        borderWidth: 1,
-        textStyle: { color: LABEL, fontFamily: MONO, fontSize: 12 },
         valueFormatter: (v: number | string) => oiFmt(Number(v)),
       },
       grid: { left: 56, right: 18, top: 40, bottom: 60 },
@@ -75,13 +50,13 @@ export default function OIByExpirationPanel({
         type: 'value',
         name: 'OI',
         nameGap: 12,
-        nameTextStyle: nameStyle,
+        nameTextStyle: axisNameStyle,
         axisLine: { lineStyle: { color: AXIS_LINE } },
         axisTick: { lineStyle: { color: AXIS_LINE } },
         axisLabel: { ...axisLabelStyle, formatter: oiFmt },
         splitLine: { lineStyle: { color: GRID } },
       },
-      series: SERIES.map((s) => ({
+      series: OI_SERIES.map((s) => ({
         type: 'bar',
         name: s.name,
         stack: s.stack,
