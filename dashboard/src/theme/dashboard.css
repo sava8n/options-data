@@ -294,6 +294,131 @@ body {
   }
 }
 
+/* ---- Open interest by strike ---- */
+.oi-strike {
+  margin: var(--gap) var(--gap) 0;
+  border: 1px solid var(--border-bright);
+  background: var(--bg-panel);
+}
+
+.oi-strike__bar {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-raised);
+}
+
+.oi-strike__title {
+  color: var(--amber);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.oi-strike__sub {
+  color: var(--text-dim);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.oi-strike__selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.oi-strike__selector-label {
+  color: var(--text-dim);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.oi-strike__select {
+  background: var(--bg);
+  color: var(--amber);
+  border: 1px solid var(--border-bright);
+  border-radius: 2px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+
+.oi-strike__select:focus {
+  outline: none;
+  border-color: var(--amber-dim);
+}
+
+.oi-strike__chart {
+  position: relative;
+  height: var(--panel-h-wide);
+}
+
+.oi-strike__chart > * {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---- OI stat tiles ---- */
+.oi-stats {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--gap);
+  padding: var(--gap);
+  border-top: 1px solid var(--border);
+}
+
+.oi-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.oi-stat__label {
+  color: var(--text-dim);
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--border-bright);
+}
+
+.oi-stat__value {
+  color: var(--amber);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+/* accent line under the label, echoing the chart series */
+.oi-stat--call .oi-stat__label {
+  border-bottom-color: #5fded0;
+}
+.oi-stat--put .oi-stat__label {
+  border-bottom-color: #ffcf4d;
+}
+.oi-stat--total .oi-stat__label {
+  border-bottom-color: #5fded0;
+}
+.oi-stat--pcr .oi-stat__label {
+  border-bottom-color: #b06cf0;
+}
+.oi-stat--notional .oi-stat__label {
+  border-bottom-color: var(--text-dim);
+}
+.oi-stat--maxpain .oi-stat__label {
+  border-bottom-color: var(--red);
+}
+
+@media (max-width: 900px) {
+  .oi-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 /* ---- Status bar ---- */
 .statusbar {
   display: flex;

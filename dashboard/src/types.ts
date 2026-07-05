@@ -83,3 +83,22 @@ export interface OIByExpirationResponse {
   as_of: string;
   points: OIByExpirationPoint[];
 }
+
+export interface OIByStrikePoint {
+  strike: number;
+  itm_calls: number;
+  otm_calls: number;
+  itm_puts: number;
+  otm_puts: number;
+  intrinsic_value: number | null; // single-expiry only
+}
+
+export interface OIByStrikeResponse {
+  currency: string;
+  spot: number;
+  as_of: string;
+  expiries: string[];
+  expiry: string | null; // selected expiry; null = all
+  max_pain: number | null; // single-expiry only
+  points: OIByStrikePoint[];
+}

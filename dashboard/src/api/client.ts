@@ -3,6 +3,7 @@ import type {
   IVCurvesResponse,
   IVSurfaceResponse,
   OIByExpirationResponse,
+  OIByStrikeResponse,
   SummaryResponse,
   TermStructureResponse,
 } from '../types';
@@ -50,6 +51,15 @@ export async function fetchOIByExpiration(
   return fetchJson<OIByExpirationResponse>(
     `/api/oi/expiration?currency=${encodeURIComponent(currency)}`,
   );
+}
+
+export async function fetchOIByStrike(
+  currency = 'BTC',
+  expiry?: string,
+): Promise<OIByStrikeResponse> {
+  const params = new URLSearchParams({ currency });
+  if (expiry) params.set('expiry', expiry);
+  return fetchJson<OIByStrikeResponse>(`/api/oi/strike?${params.toString()}`);
 }
 
 export async function fetchSummary(currency = 'BTC'): Promise<SummaryResponse> {

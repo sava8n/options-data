@@ -8,7 +8,7 @@ export default function OIByExpirationSection({ currency }: { currency: string }
   return (
     <section className="panel panel--full">
       <div className="panel__title">
-        <span className="panel__title-main">OPEN INTEREST</span>
+        <span className="panel__title-main">OPEN INTEREST BY EXPIRATION</span>
         <span className="panel__title-sub">CONTRACTS · ITM/OTM × EXPIRY</span>
       </div>
       <div className="panel__body">
