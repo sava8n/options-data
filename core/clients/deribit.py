@@ -17,9 +17,6 @@ logger = logging.getLogger(__name__)
 DERIBIT_API = "https://www.deribit.com/api/v2"
 HTTP_TIMEOUT = 10
 
-# Deribit spot index names keyed by option currency.
-_INDEX_NAMES: dict[str, str] = {"BTC": "btc_usd"}
-
 _cache = TTLCache(settings.cache_ttl_seconds)
 
 
@@ -47,22 +44,19 @@ def _get(path: str, params: dict) -> Any:
 
 def fetch_spot(currency: str = "BTC") -> float:
     """Return the current USD index price for ``currency`` (default BTC)."""
-    index_name = _INDEX_NAMES.get(currency.upper())
-    if index_name is None:
-        raise DeribitError(f"Unsupported currency: {currency}")
+    cur = currency.upper()
+    index_name = f"{cur.lower()}_usd"
 
     def producer() -> float:
         result = _get("/public/get_index_price", {"index_name": index_name})
         return float(result["index_price"])
 
-    return _cache.get_or_compute(f"spot:{currency.upper()}", producer)
+    return _cache.get_or_compute(f"spot:{cur}", producer)
 
 
 def fetch_option_summaries(currency: str = "BTC") -> list[dict]:
     """Return the full option book summary for ``currency`` (default BTC)."""
     cur = currency.upper()
-    if cur not in _INDEX_NAMES:
-        raise DeribitError(f"Unsupported currency: {currency}")
 
     def producer() -> list[dict]:
         return _get(
