@@ -8,6 +8,7 @@ import type {
   SpotHistoryResponse,
   SpotResponse,
   TermStructureResponse,
+  VolumeByStrikeResponse,
 } from '../types';
 
 export type GreekName = 'delta' | 'gamma' | 'theta' | 'vega';
@@ -68,6 +69,12 @@ export async function fetchOIByStrike(
   const params = new URLSearchParams({ currency });
   if (expiry) params.set('expiry', expiry);
   return fetchJson<OIByStrikeResponse>(`/api/oi/strike?${params.toString()}`);
+}
+
+export async function fetchVolumeByStrike(currency = 'BTC'): Promise<VolumeByStrikeResponse> {
+  return fetchJson<VolumeByStrikeResponse>(
+    `/api/volume/strike?currency=${encodeURIComponent(currency)}`,
+  );
 }
 
 export async function fetchSpot(currency = 'BTC'): Promise<SpotResponse> {

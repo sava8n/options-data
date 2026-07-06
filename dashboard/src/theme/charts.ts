@@ -1,4 +1,4 @@
-// Shared ECharts styling for the amber-terminal chart theme.
+// Shared ECharts styling for the amber-terminal chart theme
 
 export const AMBER = '#ffb000';
 export const GRID = '#243133';
@@ -8,7 +8,7 @@ export const MONO = 'monospace';
 export const axisLabelStyle = { color: AMBER, fontFamily: MONO, fontSize: 11 };
 export const axisNameStyle = { color: AMBER, fontFamily: MONO, fontSize: 13 };
 
-// base tooltip box; panels add trigger/formatter.
+// base tooltip box; panels add trigger/formatter
 export const tooltipStyle = {
   backgroundColor: '#0b0e10',
   borderColor: GRID,
@@ -16,7 +16,11 @@ export const tooltipStyle = {
   textStyle: { color: AMBER, fontFamily: MONO, fontSize: 12 },
 };
 
-// OI moneyness buckets: calls = teal, puts = amber; ITM brighter, OTM deeper.
+// single-shade call/put split: calls = teal, puts = amber
+export const CALL = '#5fded0';
+export const PUT = '#ffcf4d';
+
+// OI moneyness buckets: calls = teal, puts = amber; ITM brighter, OTM deeper
 export const OI_SERIES = [
   { key: 'itm_calls', name: 'ITM Calls', color: '#5fded0', stack: 'calls' },
   { key: 'otm_calls', name: 'OTM Calls', color: '#178f80', stack: 'calls' },

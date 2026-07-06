@@ -5,16 +5,15 @@ import type { EChartsOption } from 'echarts';
 import type { GEXByStrikeResponse } from '../../types';
 import { strikeFmt, usdFull, usdShort } from '../../utils/format';
 import {
-  AMBER,
   AXIS_LINE,
+  CALL,
   GRID,
+  PUT,
   axisLabelStyle,
   axisNameStyle,
   tooltipStyle,
 } from '../../theme/charts';
 
-const CALL = '#5fded0';
-const PUT = '#ffcf4d';
 const NET = '#b06cf0';
 const FLIP = '#ff3b30';
 
@@ -38,26 +37,9 @@ export default function GEXByStrikePanel({ data }: { data: GEXByStrikeResponse }
     const strikes = rows.map((p) => p.strike);
     const labels = strikes.map(strikeFmt);
 
-    const spotIdx = nearestIdx(strikes, data.spot);
     const flipIdx = data.flip != null ? nearestIdx(strikes, data.flip) : -1;
 
-    // spot and flip often sit on adjacent strikes: anchor each label away from
-    // the other line (left line's text extends left, right line's right)
-    const spotIsLeft = data.flip == null || data.spot <= data.flip;
-
     const markLineData: unknown[] = [];
-    if (spotIdx >= 0) {
-      markLineData.push({
-        xAxis: spotIdx,
-        lineStyle: { color: AMBER, type: 'dashed', width: 1 },
-        label: {
-          ...axisLabelStyle,
-          align: data.flip == null ? 'center' : spotIsLeft ? 'right' : 'left',
-          padding: [0, 4],
-          formatter: () => `Spot ${usdFull(data.spot)}`,
-        },
-      });
-    }
     if (flipIdx >= 0) {
       markLineData.push({
         xAxis: flipIdx,
@@ -65,8 +47,6 @@ export default function GEXByStrikePanel({ data }: { data: GEXByStrikeResponse }
         label: {
           ...axisLabelStyle,
           color: FLIP,
-          align: spotIsLeft ? 'left' : 'right',
-          padding: [0, 4],
           formatter: () => `Flip ${usdFull(data.flip as number)}`,
         },
       });

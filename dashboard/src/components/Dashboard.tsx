@@ -14,6 +14,7 @@ import GEXByStrikeSection from './gex/GEXByStrikeSection';
 import OIByExpirationSection from './oi/OIByExpirationSection';
 import OIByStrikeSection from './oi/OIByStrikeSection';
 import SpotHistorySection from './spot/SpotHistorySection';
+import VolumeByStrikeSection from './volume/VolumeByStrikeSection';
 
 export default function Dashboard({ currency }: { currency: string }) {
   const [tab, setTab] = useState<TabId>('positioning');
@@ -31,6 +32,7 @@ export default function Dashboard({ currency }: { currency: string }) {
           <>
             <GEXByStrikeSection currency={currency} />
             <OIByStrikeSection currency={currency} />
+            <VolumeByStrikeSection currency={currency} />
             <OIByExpirationSection currency={currency} />
           </>
         )}

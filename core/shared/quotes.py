@@ -76,7 +76,7 @@ def prepare_otm_quotes(summaries: list[dict], spot: float) -> pd.DataFrame:
     df["mark_price"] = pd.to_numeric(df["mark_price"], errors="coerce")
     df["bid_price"] = pd.to_numeric(df.get("bid_price", np.nan), errors="coerce")
 
-    # use the per-instrument forward for moneyness, falling back to spot.
+    # use the per-instrument forward for moneyness, falling back to spot
     df["forward"] = pd.to_numeric(df.get("underlying_price", np.nan), errors="coerce")
     n_no_forward = int(df["forward"].isna().sum())
     df["forward"] = df["forward"].fillna(spot)
@@ -143,6 +143,7 @@ OI_CHAIN_COLUMNS = [
     "forward",
     "option_type",
     "open_interest",
+    "volume",
 ]
 
 
@@ -155,6 +156,7 @@ def _empty_oi_chain() -> pd.DataFrame:
             "forward": pd.Series([], dtype="float64"),
             "option_type": pd.Series([], dtype="object"),
             "open_interest": pd.Series([], dtype="float64"),
+            "volume": pd.Series([], dtype="float64"),
         }
     )
 
@@ -179,11 +181,14 @@ def prepare_oi_chain(summaries: list[dict], spot: float) -> pd.DataFrame:
     df = pd.DataFrame(summaries)
     df = _parse_instrument_fields(df)
 
-    # assign the column first so `.fillna` works even if the key is absent upstream.
+    # assign the column first so `.fillna` works even if the key is absent upstream
     df["open_interest"] = pd.to_numeric(df.get("open_interest", np.nan), errors="coerce")
     df["open_interest"] = df["open_interest"].fillna(0.0)
 
-    # per-instrument forward for moneyness, falling back to spot.
+    # 24h traded volume (contracts)
+    df["volume"] = pd.to_numeric(df.get("volume", np.nan), errors="coerce").fillna(0.0)
+
+    # per-instrument forward for moneyness, falling back to spot
     df["forward"] = pd.to_numeric(df.get("underlying_price", np.nan), errors="coerce")
     n_no_forward = int(df["forward"].isna().sum())
     df["forward"] = df["forward"].fillna(spot)

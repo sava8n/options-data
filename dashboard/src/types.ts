@@ -116,6 +116,19 @@ export interface GEXByStrikeResponse {
   points: GEXByStrikePoint[];
 }
 
+export interface VolumeByStrikePoint {
+  strike: number;
+  call_volume: number;
+  put_volume: number;
+}
+
+export interface VolumeByStrikeResponse {
+  currency: string;
+  spot: number;
+  as_of: string;
+  points: VolumeByStrikePoint[];
+}
+
 export interface OIByStrikePoint {
   strike: number;
   itm_calls: number;
