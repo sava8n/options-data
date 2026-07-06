@@ -1,8 +1,8 @@
-import GreekChart from './GreekChart';
+import GreekSection from './GreekSection';
 
-export default function DeltaPanel({ currency }: { currency: string }) {
+export default function DeltaSection({ currency }: { currency: string }) {
   return (
-    <GreekChart
+    <GreekSection
       greek="delta"
       label="DELTA"
       color="#4aa3ff"

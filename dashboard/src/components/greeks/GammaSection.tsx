@@ -1,8 +1,8 @@
-import GreekChart from './GreekChart';
+import GreekSection from './GreekSection';
 
-export default function GammaPanel({ currency }: { currency: string }) {
+export default function GammaSection({ currency }: { currency: string }) {
   return (
-    <GreekChart
+    <GreekSection
       greek="gamma"
       label="GAMMA"
       color="#33ff66"

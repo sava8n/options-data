@@ -1,8 +1,8 @@
-import GreekChart from './GreekChart';
+import GreekSection from './GreekSection';
 
-export default function ThetaPanel({ currency }: { currency: string }) {
+export default function ThetaSection({ currency }: { currency: string }) {
   return (
-    <GreekChart
+    <GreekSection
       greek="theta"
       label="THETA"
       color="#ff6b6b"

@@ -1,8 +1,8 @@
-import GreekChart from './GreekChart';
+import GreekSection from './GreekSection';
 
-export default function VegaPanel({ currency }: { currency: string }) {
+export default function VegaSection({ currency }: { currency: string }) {
   return (
-    <GreekChart
+    <GreekSection
       greek="vega"
       label="VEGA"
       color="#ffb000"
