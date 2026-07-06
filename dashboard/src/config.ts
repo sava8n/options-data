@@ -6,3 +6,7 @@ export const REFRESH_LABEL =
   REFRESH_INTERVAL_SECONDS % 60 === 0
     ? `${REFRESH_INTERVAL_SECONDS / 60}m`
     : `${REFRESH_INTERVAL_SECONDS}s`;
+
+// default DTE window
+export const MIN_DTE = 7;
+export const MAX_DTE = 365;

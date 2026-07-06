@@ -192,6 +192,49 @@ body {
   letter-spacing: 1px;
 }
 
+/* ---- DTE window control (multi-expiry IV charts) ---- */
+.dte {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.dte__label {
+  color: var(--text-dim);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.dte__input {
+  width: 44px;
+  background: var(--bg);
+  color: var(--amber);
+  border: 1px solid var(--border-bright);
+  border-radius: 2px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 3px 6px;
+}
+
+.dte__input:focus {
+  outline: none;
+  border-color: var(--amber-dim);
+}
+
+/* hide number spinners to keep the terminal look */
+.dte__input::-webkit-outer-spin-button,
+.dte__input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.dte__input[type='number'] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
 .panel__body {
   position: relative;
   flex: 1;

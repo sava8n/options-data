@@ -11,9 +11,6 @@ from shared.black76 import black76_delta
 
 logger = logging.getLogger(__name__)
 
-MIN_TTE_DAYS = 7 # keep weeklies for short-term context; drop sub-week dailies
-MAX_TTE_DAYS = 365 # cap at ~1Y — covers all liquid Deribit expiries
-
 MIN_MARK_PRICE_BTC = 0.0005 # price floor — near-zero marks have unreliable mark_iv
 
 MIN_MARK_IV = 0.05
@@ -93,20 +90,16 @@ def prepare_otm_quotes(summaries: list[dict], spot: float) -> pd.DataFrame:
     df = df[
         (df["mark_iv"] >= MIN_MARK_IV)
         & (df["mark_iv"] <= MAX_MARK_IV)
-        & (df["tte_years"] >= MIN_TTE_DAYS / 365.25)
-        & (df["tte_years"] <= MAX_TTE_DAYS / 365.25)
         & (df["mark_price"] >= MIN_MARK_PRICE_BTC)
         # no-bid books have unreliable mark_iv
         & (df["bid_price"] > 0)
     ].copy()
     logger.debug(
-        "quality filters, kept %d/%d rows (mark_iv %.2f-%.2f, tte %d-%dd, mark_price>=%.4f BTC, bid>0)",
+        "quality filters, kept %d/%d rows (mark_iv %.2f-%.2f, mark_price>=%.4f BTC, bid>0)",
         len(df),
         n_pre_quality,
         MIN_MARK_IV,
         MAX_MARK_IV,
-        MIN_TTE_DAYS,
-        MAX_TTE_DAYS,
         MIN_MARK_PRICE_BTC,
     )
     if df.empty:
