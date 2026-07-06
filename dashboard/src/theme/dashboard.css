@@ -46,7 +46,7 @@ body {
 /* ---- Layout ---- */
 .dashboard {
   display: grid;
-  grid-template-rows: auto auto 1fr auto; /* header | tabs | content | statusbar */
+  grid-template-rows: auto auto auto 1fr auto; /* header | market | tabs | content | statusbar */
   min-height: 100vh;
   background: var(--bg);
 }
@@ -205,7 +205,7 @@ body {
 /* full-width standalone panel (e.g. open interest by expiration) */
 .panel--full {
   height: var(--panel-h-wide);
-  margin: var(--gap) var(--gap) 0;
+  margin: var(--gap);
 }
 
 @media (max-width: 900px) {

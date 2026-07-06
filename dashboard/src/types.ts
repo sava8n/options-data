@@ -69,6 +69,22 @@ export interface SpotResponse {
   as_of: string;
 }
 
+export interface SpotCandle {
+  ts: string; // candle open time
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume: number;
+}
+
+export interface SpotHistoryResponse {
+  currency: string;
+  instrument: string;
+  as_of: string;
+  candles: SpotCandle[];
+}
+
 export interface OIByExpirationPoint {
   expiry: string;
   tte_years: number;

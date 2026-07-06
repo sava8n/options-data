@@ -12,6 +12,7 @@ import ThetaSection from './greeks/ThetaSection';
 import VegaSection from './greeks/VegaSection';
 import OIByExpirationSection from './oi/OIByExpirationSection';
 import OIByStrikeSection from './oi/OIByStrikeSection';
+import SpotHistorySection from './spot/SpotHistorySection';
 
 export default function Dashboard({ currency }: { currency: string }) {
   const [tab, setTab] = useState<TabId>('positioning');
@@ -19,6 +20,8 @@ export default function Dashboard({ currency }: { currency: string }) {
   return (
     <div className="dashboard">
       <Header currency={currency} />
+
+      <SpotHistorySection currency={currency} />
 
       <Tabs active={tab} onSelect={setTab} />
 

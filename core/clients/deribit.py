@@ -49,3 +49,20 @@ def fetch_option_summaries(currency: str = "BTC") -> list[dict]:
         "/public/get_book_summary_by_currency",
         {"currency": currency.upper(), "kind": "option"},
     )
+
+
+def fetch_spot_candles(currency: str = "BTC", days: int = 365) -> dict:
+    """Daily OHLCV candles of the ``<currency>_USDC`` spot pair for the past ``days``.
+
+    Returns Deribit's TradingView-format arrays: ``{ticks, open, high, low, close, volume, status}``.
+    """
+    end_ms = int(time.time() * 1000)
+    return _get(
+        "/public/get_tradingview_chart_data",
+        {
+            "instrument_name": f"{currency.upper()}_USDC",
+            "start_timestamp": end_ms - days * 86_400_000,
+            "end_timestamp": end_ms,
+            "resolution": "1D",
+        },
+    )

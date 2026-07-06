@@ -8,11 +8,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="OPTIONS_DATA_SERVICE_", extra="ignore")
 
-    # Comma-separated values keep env parsing simple and robust.
+    # comma-separated values keep env parsing simple
     cors_origins: str = "http://localhost:5173,http://localhost:8080"
     supported_currencies: str = "BTC"
     log_level: str = "INFO"
-    cache_ttl_seconds: int = 10
+    market_cache_ttl_seconds: int = 10
+    history_cache_ttl_seconds: int = 600
 
     @property
     def cors_origin_list(self) -> list[str]:

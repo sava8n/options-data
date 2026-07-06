@@ -1,4 +1,4 @@
-"""Spot price route."""
+"""Spot price routes: current value and daily candle history."""
 
 from __future__ import annotations
 
@@ -6,13 +6,13 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Query
 
-from schemas.spot import SpotResponse
-from shared.market_data import load_spot, validate_currency
+from schemas.spot import SpotCandle, SpotHistoryResponse, SpotResponse
+from shared.market_data import load_spot, load_spot_candles, validate_currency
 
-router = APIRouter(tags=["spot"])
+router = APIRouter(prefix="/spot", tags=["spot"])
 
 
-@router.get("/spot", response_model=SpotResponse)
+@router.get("", response_model=SpotResponse)
 def get_spot(currency: str = Query("BTC")) -> SpotResponse:
     """Current spot index price."""
     cur = validate_currency(currency)
@@ -20,4 +20,34 @@ def get_spot(currency: str = Query("BTC")) -> SpotResponse:
         currency=cur,
         spot=load_spot(cur),
         as_of=datetime.now(timezone.utc),
+    )
+
+
+@router.get("/history", response_model=SpotHistoryResponse)
+def get_spot_history(currency: str = Query("BTC")) -> SpotHistoryResponse:
+    """A trailing year of daily spot candles."""
+    cur = validate_currency(currency)
+    raw = load_spot_candles(cur)
+
+    candles = []
+    if raw.get("status") == "ok":
+        candles = [
+            SpotCandle(
+                ts=datetime.fromtimestamp(ts / 1000, tz=timezone.utc),
+                open=o,
+                high=h,
+                low=lo,
+                close=c,
+                volume=v,
+            )
+            for ts, o, h, lo, c, v in zip(
+                raw["ticks"], raw["open"], raw["high"], raw["low"], raw["close"], raw["volume"]
+            )
+        ]
+
+    return SpotHistoryResponse(
+        currency=cur,
+        instrument=f"{cur}_USDC",
+        as_of=datetime.now(timezone.utc),
+        candles=candles,
     )

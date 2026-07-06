@@ -19,7 +19,10 @@ logger = logging.getLogger(__name__)
 # One snapshot per currency: a single upstream round-trip (spot + option book) feeds
 # every endpoint, so all views within a TTL window see the same market state and
 # concurrent misses collapse on one per-key lock.
-_cache = TTLCache(settings.cache_ttl_seconds)
+_market_cache = TTLCache(settings.market_cache_ttl_seconds)
+
+# history in daily resolution 
+_history_cache = TTLCache(settings.history_cache_ttl_seconds)
 
 
 class MarketSnapshot(NamedTuple):
@@ -53,7 +56,7 @@ def _load_snapshot(cur: str) -> MarketSnapshot:
             oi_chain=prepare_oi_chain(summaries, spot),
         )
 
-    return _cache.get_or_compute(f"market:{cur}", producer)
+    return _market_cache.get_or_compute(f"market:{cur}", producer)
 
 
 def load_spot(cur: str) -> float:
@@ -68,3 +71,14 @@ def load_otm_quotes(cur: str) -> tuple[float, pd.DataFrame]:
 def load_oi_chain(cur: str) -> tuple[float, pd.DataFrame]:
     snapshot = _load_snapshot(cur)
     return snapshot.spot, snapshot.oi_chain
+
+
+def load_spot_candles(cur: str) -> dict:
+    def producer() -> dict:
+        try:
+            return deribit.fetch_spot_candles(cur)
+        except DeribitError as exc:
+            logger.warning("cannot fetch spot candles for currency=%s, %s", cur, exc)
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return _history_cache.get_or_compute(f"spot_candles:{cur}", producer)

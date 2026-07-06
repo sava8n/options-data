@@ -1,4 +1,4 @@
-"""Response model for the spot price route."""
+"""Response models for the spot price routes."""
 
 from __future__ import annotations
 
@@ -11,3 +11,19 @@ class SpotResponse(BaseModel):
     currency: str
     spot: float
     as_of: datetime
+
+
+class SpotCandle(BaseModel):
+    ts: datetime  # candle open time
+    open: float
+    high: float
+    low: float
+    close: float
+    volume: float
+
+
+class SpotHistoryResponse(BaseModel):
+    currency: str
+    instrument: str
+    as_of: datetime
+    candles: list[SpotCandle]
