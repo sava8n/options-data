@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Query
 
 from schemas.spot import SpotCandle, SpotHistoryResponse
-from shared.market_data import load_spot_candles, validate_currency
+from market.loader import load_market_state, validate_currency
 
 router = APIRouter(prefix="/spot", tags=["spot"])
 
@@ -16,10 +16,10 @@ router = APIRouter(prefix="/spot", tags=["spot"])
 def get_spot_history(currency: str = Query("BTC")) -> SpotHistoryResponse:
     """A trailing year of daily spot candles."""
     cur = validate_currency(currency)
-    raw = load_spot_candles(cur)
+    raw = load_market_state(cur).spot_candles
 
     candles = []
-    if raw.get("status") == "ok":
+    if raw and raw.get("status") == "ok":
         candles = [
             SpotCandle(
                 ts=datetime.fromtimestamp(ts / 1000, tz=timezone.utc),

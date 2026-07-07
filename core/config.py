@@ -13,7 +13,6 @@ class Settings(BaseSettings):
     supported_currencies: str = "BTC"
     log_level: str = "INFO"
     market_cache_ttl_seconds: int = 10
-    history_cache_ttl_seconds: int = 600
 
     @property
     def cors_origin_list(self) -> list[str]:

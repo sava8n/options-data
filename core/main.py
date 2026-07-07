@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import asyncio
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
 from log_config import setup_logging
+from market.loader import warm_up
 from routers.health import router as health_router
 from routers.iv import router as iv_router
 from routers.greeks import router as greeks_router
@@ -18,10 +22,19 @@ from routers.stats import router as stats_router
 
 setup_logging(settings.log_level)
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # best-effort warm-up so the first request doesn't pay the upstream fetch
+    await asyncio.to_thread(warm_up)
+    yield
+
+
 server = FastAPI(
     title="Options Data API",
     version="1.0.0",
     description="REST analytics for BTC options (from Deribit).",
+    lifespan=lifespan,
 )
 
 server.add_middleware(

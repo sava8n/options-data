@@ -9,7 +9,7 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-# one row per expiry: the interpolated ATM IV, keyed/sorted by time to expiry.
+# one row per expiry: the interpolated ATM IV, keyed/sorted by time to expiry
 TERM_COLUMNS = ["expiry", "tte_years", "atm_iv", "forward"]
 
 
@@ -33,7 +33,7 @@ def atm_iv(group: pd.DataFrame, fwd: float) -> float | None:
     """
     if not np.isfinite(fwd) or fwd <= 0:
         return None
-    # average IV per strike (a call and a put may share a strike), sorted by strike.
+    # average IV per strike (a call and a put may share a strike), sorted by strike
     per_strike = group.groupby("strike")["mark_iv"].mean().sort_index()
     strikes = per_strike.index.to_numpy(dtype=float)
     ivs = per_strike.to_numpy(dtype=float)

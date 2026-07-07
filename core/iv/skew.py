@@ -11,7 +11,7 @@ from iv.term_structure import atm_iv
 
 logger = logging.getLogger(__name__)
 
-# one row per expiry, sorted by time to expiry.
+# one row per expiry, sorted by time to expiry
 SKEW_COLUMNS = ["expiry", "tte_years", "rr", "bf"]
 
 CALL_DELTA = 0.25

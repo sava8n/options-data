@@ -10,7 +10,7 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 # one row per expiry: open interest (contracts) split into
-# four moneyness buckets, sorted by time to expiry.
+# four moneyness buckets, sorted by time to expiry
 OI_BY_EXPIRATION_COLUMNS = ["expiry", "tte_years", "itm_calls", "otm_calls", "itm_puts", "otm_puts"]
 
 _BUCKETS = ["itm_calls", "otm_calls", "itm_puts", "otm_puts"]
@@ -55,7 +55,7 @@ def build(prepared_chain: pd.DataFrame) -> pd.DataFrame:
     work = prepared_chain[["expiry", "tte_years", "open_interest"]].copy()
     work["bucket"] = bucket
 
-    # sum OI per (expiry, bucket), then spread the buckets into columns.
+    # sum OI per (expiry, bucket), then spread the buckets into columns
     pivot = work.pivot_table(
         index="expiry",
         columns="bucket",

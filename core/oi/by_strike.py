@@ -55,7 +55,7 @@ def build(prepared_chain: pd.DataFrame) -> pd.DataFrame:
     work = prepared_chain[["strike", "open_interest"]].copy()
     work["bucket"] = bucket
 
-    # sum OI per (strike, bucket), then spread the buckets into columns.
+    # sum OI per (strike, bucket), then spread the buckets into columns
     pivot = work.pivot_table(
         index="strike",
         columns="bucket",
@@ -97,7 +97,7 @@ def intrinsic_values(prepared_chain: pd.DataFrame) -> pd.DataFrame:
 
     candidates = np.unique(strike)
     # broadcast candidates (rows) against contracts (cols): payoff of each contract
-    # if the underlying settled at each candidate price.
+    # if the underlying settled at each candidate price
     diff = candidates[:, None] - strike[None, :]
     call_payoff = np.where(is_call[None, :], np.maximum(diff, 0.0), 0.0)
     put_payoff = np.where(~is_call[None, :], np.maximum(-diff, 0.0), 0.0)

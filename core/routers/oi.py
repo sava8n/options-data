@@ -14,8 +14,7 @@ from schemas.oi import (
     OIByStrikeResponse,
     OIByStrikePoint,
 )
-from shared.market_data import load_oi_chain, validate_currency
-from oi import by_expiration, by_strike
+from market.loader import load_market_state, validate_currency
 
 logger = logging.getLogger(__name__)
 
@@ -26,9 +25,7 @@ router = APIRouter(prefix="/oi", tags=["open-interest"])
 def get_oi_by_expiration(currency: str = Query("BTC")) -> OIByExpirationResponse:
     """BTC open interest by expiration: per-expiry OI split into ITM/OTM calls and puts."""
     cur = validate_currency(currency)
-    spot, oi_chain = load_oi_chain(cur)
-
-    grid = by_expiration.build(oi_chain)
+    state = load_market_state(cur)
 
     points = [
         OIByExpirationPoint(
@@ -39,12 +36,12 @@ def get_oi_by_expiration(currency: str = Query("BTC")) -> OIByExpirationResponse
             itm_puts=float(row.itm_puts),
             otm_puts=float(row.otm_puts),
         )
-        for row in grid.itertuples(index=False)
+        for row in state.oi_by_expiration.itertuples(index=False)
     ]
 
     return OIByExpirationResponse(
         currency=cur,
-        spot=spot,
+        spot=state.spot,
         as_of=datetime.now(timezone.utc),
         points=points,
     )
@@ -62,21 +59,11 @@ def get_oi_by_strike(
     strike) are also returned.
     """
     cur = validate_currency(currency)
-    spot, oi_chain = load_oi_chain(cur)
+    state = load_market_state(cur)
 
-    # full expiry list (pre-filter) so the dropdown always has every option.
-    expiries = [pd.Timestamp(e).to_pydatetime() for e in sorted(oi_chain["expiry"].unique())]
-
-    chain = oi_chain
-    max_pain: float | None = None
-    intrinsic_by_strike: dict[float, float] = {}
-    if expiry is not None:
-        chain = oi_chain[oi_chain["expiry"] == pd.Timestamp(expiry)]
-        iv = by_strike.intrinsic_values(chain)
-        intrinsic_by_strike = dict(zip(iv["strike"], iv["intrinsic_value"]))
-        max_pain = by_strike.max_pain(iv)
-
-    grid = by_strike.build(chain)
+    grid, intrinsic_by_strike, max_pain = state.oi_by_strike(
+        pd.Timestamp(expiry) if expiry is not None else None
+    )
 
     points = [
         OIByStrikePoint(
@@ -94,9 +81,9 @@ def get_oi_by_strike(
 
     return OIByStrikeResponse(
         currency=cur,
-        spot=spot,
+        spot=state.spot,
         as_of=datetime.now(timezone.utc),
-        expiries=expiries,
+        expiries=state.oi_expiries,
         expiry=expiry,
         max_pain=max_pain,
         points=points,

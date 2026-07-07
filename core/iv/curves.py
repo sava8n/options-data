@@ -7,7 +7,7 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-# one row per surviving OTM quote, keyed by strike so each expiry forms a smile.
+# one row per surviving OTM quote, keyed by strike so each expiry forms a smile
 CURVE_COLUMNS = ["expiry", "tte_years", "strike", "mark_iv", "option_type"]
 
 

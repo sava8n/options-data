@@ -1,6 +1,6 @@
 """Dollar-gamma exposure (GEX) by strike.
 
-Joins the full OI chain with per-contract Black-76 gamma from the OTM quotes:
+Joins the full OI chain with per-contract Black-76 gamma from the greeks chain:
 gamma is strike-symmetric (the call and put of an expiry/strike share it), so
 the surviving OTM quote prices gamma for both sides' open interest. OI at
 strikes with no quality-surviving OTM quote is dropped.
@@ -16,8 +16,6 @@ import logging
 
 import numpy as np
 import pandas as pd
-
-from greeks.chain import build_chain
 
 logger = logging.getLogger(__name__)
 
@@ -35,17 +33,16 @@ def _empty_gex() -> pd.DataFrame:
     )
 
 
-def build(otm_quotes: pd.DataFrame, oi_chain: pd.DataFrame) -> pd.DataFrame:
+def build(greeks_chain: pd.DataFrame, oi_chain: pd.DataFrame) -> pd.DataFrame:
     """Per-strike dollar GEX (calls +, puts -), sorted by strike."""
     logger.info(
-        "building GEX from %d OTM quotes and %d OI contracts", len(otm_quotes), len(oi_chain)
+        "building GEX from %d greek rows and %d OI contracts", len(greeks_chain), len(oi_chain)
     )
-    if otm_quotes.empty or oi_chain.empty:
+    if greeks_chain.empty or oi_chain.empty:
         return _empty_gex()
 
-    greeks = build_chain(otm_quotes)
-    # one gamma per (expiry, strike): only one side of a strike is OTM.
-    gamma = greeks[["expiry", "strike", "gamma"]].dropna().drop_duplicates(["expiry", "strike"])
+    # one gamma per (expiry, strike): only one side of a strike is OTM
+    gamma = greeks_chain[["expiry", "strike", "gamma"]].dropna().drop_duplicates(["expiry", "strike"])
 
     merged = oi_chain.merge(gamma, on=["expiry", "strike"], how="inner")
     if merged.empty:
