@@ -30,3 +30,14 @@ export const OI_SERIES = [
   { key: 'itm_puts', name: 'ITM Puts', color: '#ffcf4d', stack: 'puts' },
   { key: 'otm_puts', name: 'OTM Puts', color: '#c8860b', stack: 'puts' },
 ] as const;
+
+// COT participant categories: fixed order and hues, never re-assigned on toggle
+export const COT_CATEGORIES = [
+  { key: 'dealer', name: 'DEALER', color: '#5fded0' },
+  { key: 'asset_mgr', name: 'ASSET MGR', color: '#b06cf0' },
+  { key: 'lev_money', name: 'LEV FUNDS', color: '#ffcf4d' },
+  { key: 'other_rept', name: 'OTHER REPT', color: '#ff7a5c' },
+  { key: 'nonrept', name: 'NONREPT', color: '#5b9cf5' },
+] as const;
+
+export type CotCategoryKey = (typeof COT_CATEGORIES)[number]['key'];

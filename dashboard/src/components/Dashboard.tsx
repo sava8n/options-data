@@ -12,6 +12,7 @@ import GammaSection from './greeks/GammaSection';
 import ThetaSection from './greeks/ThetaSection';
 import VegaSection from './greeks/VegaSection';
 import BasisSection from './basis/BasisSection';
+import CotTab from './cot/CotTab';
 import GEXByStrikeSection from './gex/GEXByStrikeSection';
 import OIByExpirationSection from './oi/OIByExpirationSection';
 import OIByStrikeSection from './oi/OIByStrikeSection';
@@ -57,6 +58,8 @@ export default function Dashboard({ currency }: { currency: string }) {
             <BasisSection currency={currency} />
           </div>
         )}
+
+        {tab === 'cot' && <CotTab />}
       </main>
 
       <StatusBar currency={currency} />

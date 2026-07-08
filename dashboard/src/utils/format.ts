@@ -1,4 +1,4 @@
-// Shared display formatters for chart axes and labels.
+// Shared display formatters for chart axes and labels
 
 // Deribit expiries are at 08:00 UTC; 
 // Format like "04JUL26" (day + upper month + 2-digit year).
@@ -12,20 +12,20 @@ export function expiryLabel(iso: string): string {
   return `${day}${mon}${yr}`;
 }
 
-// strike axis: 62000 -> "62k".
+// strike axis: 62000 -> "62k"
 export const strikeFmt = (v: number) => `${(v / 1000).toLocaleString('en-US')}k`;
 
-// open interest (contracts), abbreviated: 62000 -> "62k".
+// open interest (contracts), abbreviated: 62000 -> "62k"
 export const oiFmt = (v: number) =>
   v >= 1000
     ? `${(v / 1000).toLocaleString('en-US', { maximumFractionDigits: 1 })}k`
     : `${Math.round(v)}`;
 
-// open interest (contracts), full: 1234567 -> "1,234,567".
+// open interest (contracts), full: 1234567 -> "1,234,567"
 export const oiFull = (v: number) =>
   v.toLocaleString('en-US', { maximumFractionDigits: 0 });
 
-// USD, abbreviated: 12_500_000 -> "$12.5M".
+// USD, abbreviated: 12_500_000 -> "$12.5M"
 export const usdShort = (v: number) => {
   if (Math.abs(v) >= 1e9) return `$${(v / 1e9).toLocaleString('en-US', { maximumFractionDigits: 1 })}B`;
   if (Math.abs(v) >= 1e6) return `$${(v / 1e6).toLocaleString('en-US', { maximumFractionDigits: 1 })}M`;
@@ -33,9 +33,30 @@ export const usdShort = (v: number) => {
   return `$${Math.round(v)}`;
 };
 
-// USD, full: 61500 -> "$61,500.00".
+// USD, full: 61500 -> "$61,500.00"
 export const usdFull = (v: number) =>
   `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-// IV fraction: 0.42 -> "42%".
+// IV fraction: 0.42 -> "42%"
 export const ivFmt = (v: number) => `${Math.round(v * 100)}%`;
+
+// BTC-equivalent contracts, abbreviated, sign-aware: -94384.5 -> "-94.4k"
+export const btcEquiv = (v: number) => {
+  const abs = Math.abs(v);
+  const body =
+    abs >= 1000
+      ? `${(abs / 1000).toLocaleString('en-US', { maximumFractionDigits: 1 })}k`
+      : `${Math.round(abs)}`;
+  return v < 0 ? `-${body}` : body;
+};
+
+// delta variant with explicit plus: 2470 -> "+2.5k"
+export const btcEquivSigned = (v: number) => (v > 0 ? `+${btcEquiv(v)}` : btcEquiv(v));
+
+// BTC-equivalent contracts, full: 94384.5 -> "94,384.5"
+export const btcFull = (v: number) =>
+  v.toLocaleString('en-US', { maximumFractionDigits: 1 });
+
+// signed percent: 12.34 -> "+12.3%"
+export const signedPct = (v: number) =>
+  `${v > 0 ? '+' : ''}${v.toLocaleString('en-US', { maximumFractionDigits: 1 })}%`;

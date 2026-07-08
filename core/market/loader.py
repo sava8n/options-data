@@ -41,7 +41,7 @@ def validate_currency(currency: str) -> str:
 def _refresh_spot_candles(prev: dict | None, cur: str) -> dict | None:
     try:
         days = history.refresh_days(history.spot_last_tick(prev))
-        return history.splice_spot(prev, deribit.fetch_spot_candles(cur, days=days))
+        return history.splice_spot(prev, deribit.fetch_spot_history(cur, days=days))
     except DeribitError as exc:
         logger.warning("keeping stale spot candles for currency=%s, %s", cur, exc)
         return prev

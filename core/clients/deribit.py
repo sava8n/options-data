@@ -66,18 +66,20 @@ def fetch_dvol_history(currency: str = "BTC", days: int = 365) -> list[list[floa
     return result["data"]
 
 
-def fetch_spot_candles(currency: str = "BTC", days: int = 365) -> dict:
-    """Daily OHLCV candles of the ``<currency>_USDC`` spot pair for the past ``days``.
-
-    Returns Deribit's TradingView-format arrays: ``{ticks, open, high, low, close, volume, status}``.
-    """
-    end_ms = int(time.time() * 1000)
+def fetch_instrument_history(instrument: str, start_ms: int, end_ms: int) -> dict:
+    """Daily OHLCV candles of ``instrument`` over ``[start_ms, end_ms]``, TradingView-format arrays."""
     return _get(
         "/public/get_tradingview_chart_data",
         {
-            "instrument_name": f"{currency.upper()}_USDC",
-            "start_timestamp": end_ms - days * 86_400_000,
+            "instrument_name": instrument,
+            "start_timestamp": start_ms,
             "end_timestamp": end_ms,
             "resolution": "1D",
         },
     )
+
+
+def fetch_spot_history(currency: str = "BTC", days: int = 365) -> dict:
+    """Daily OHLCV candles of the ``<currency>_USDC`` spot pair for the past ``days``."""
+    end_ms = int(time.time() * 1000)
+    return fetch_instrument_history(f"{currency.upper()}_USDC", end_ms - days * 86_400_000, end_ms)

@@ -1,4 +1,7 @@
 import type {
+  CotHistoryResponse,
+  CotIndexResponse,
+  CotReportResponse,
   GEXByStrikeResponse,
   GreeksChainResponse,
   IVCurvesResponse,
@@ -90,4 +93,19 @@ export async function fetchSpotHistory(currency = 'BTC'): Promise<SpotHistoryRes
   return fetchJson<SpotHistoryResponse>(
     `/api/spot/history?currency=${encodeURIComponent(currency)}`,
   );
+}
+
+// COT index window in weeks; 0 = full history
+export type CotWindow = 0 | 52 | 156 | 260;
+
+export async function fetchCotReport(window: CotWindow = 156): Promise<CotReportResponse> {
+  return fetchJson<CotReportResponse>(`/api/cot/report?window=${window}`);
+}
+
+export async function fetchCotHistory(): Promise<CotHistoryResponse> {
+  return fetchJson<CotHistoryResponse>('/api/cot/history');
+}
+
+export async function fetchCotIndex(window: CotWindow = 156): Promise<CotIndexResponse> {
+  return fetchJson<CotIndexResponse>(`/api/cot/index?window=${window}`);
 }

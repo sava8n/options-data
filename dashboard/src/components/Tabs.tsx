@@ -1,9 +1,20 @@
-export type TabId = 'positioning' | 'volatility' | 'chain';
+import { Fragment } from 'react';
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: 'positioning', label: 'POSITIONING' },
-  { id: 'volatility', label: 'VOLATILITY' },
-  { id: 'chain', label: 'CHAIN' },
+export type TabId = 'positioning' | 'volatility' | 'chain' | 'cot';
+
+const GROUPS: { label: string; tabs: { id: TabId; label: string }[] }[] = [
+  {
+    label: 'OPTIONS',
+    tabs: [
+      { id: 'positioning', label: 'POSITIONING' },
+      { id: 'volatility', label: 'VOLATILITY' },
+      { id: 'chain', label: 'CHAIN' },
+    ],
+  },
+  {
+    label: 'COT',
+    tabs: [{ id: 'cot', label: 'REPORT' }],
+  },
 ];
 
 interface Props {
@@ -14,15 +25,20 @@ interface Props {
 export default function Tabs({ active, onSelect }: Props) {
   return (
     <nav className="tabs">
-      {TABS.map(({ id, label }) => (
-        <button
-          key={id}
-          type="button"
-          className={`tabs__tab${id === active ? ' tabs__tab--active' : ''}`}
-          onClick={() => onSelect(id)}
-        >
-          {label}
-        </button>
+      {GROUPS.map(({ label, tabs }) => (
+        <Fragment key={label}>
+          <span className="tabs__group">{label}</span>
+          {tabs.map(({ id, label: tabLabel }) => (
+            <button
+              key={id}
+              type="button"
+              className={`tabs__tab${id === active ? ' tabs__tab--active' : ''}`}
+              onClick={() => onSelect(id)}
+            >
+              {tabLabel}
+            </button>
+          ))}
+        </Fragment>
       ))}
     </nav>
   );

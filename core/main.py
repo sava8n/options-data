@@ -9,8 +9,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
+from cot.loader import warm_up as cot_warm_up
 from log_config import setup_logging
-from market.loader import warm_up
+from market.loader import warm_up as market_warm_up
+from routers.cot import router as cot_router
 from routers.health import router as health_router
 from routers.iv import router as iv_router
 from routers.greeks import router as greeks_router
@@ -26,7 +28,7 @@ setup_logging(settings.log_level)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # best-effort warm-up so the first request doesn't pay the upstream fetch
-    await asyncio.to_thread(warm_up)
+    await asyncio.gather(asyncio.to_thread(market_warm_up), asyncio.to_thread(cot_warm_up))
     yield
 
 
@@ -53,3 +55,4 @@ server.include_router(oi_router, prefix="/api")
 server.include_router(volume_router, prefix="/api")
 server.include_router(spot_router, prefix="/api")
 server.include_router(stats_router, prefix="/api")
+server.include_router(cot_router, prefix="/api")
