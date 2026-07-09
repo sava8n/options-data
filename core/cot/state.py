@@ -6,6 +6,7 @@ lifetime - one cache TTL window, so every endpoint serves the same numbers.
 
 from __future__ import annotations
 
+from datetime import datetime
 from functools import cached_property
 
 import pandas as pd
@@ -17,7 +18,8 @@ from cot.fields import MICRO_BITCOIN_CODE
 
 
 class CotState:
-    def __init__(self, tidy: pd.DataFrame, price_candles: dict | None) -> None:
+    def __init__(self, as_of: datetime, tidy: pd.DataFrame, price_candles: dict | None) -> None:
+        self.as_of = as_of
         self.tidy = tidy  # shared across requests; treat as read-only
         self.price_candles = price_candles  # TradingView arrays since 2017 or None
         self._index_cache: dict[tuple[int, str], pd.DataFrame] = {}

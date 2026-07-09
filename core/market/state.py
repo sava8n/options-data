@@ -7,6 +7,7 @@ shared intermediates (greeks chain, term structure, etc.) are built once.
 
 from __future__ import annotations
 
+from datetime import datetime
 from functools import cached_property
 
 import pandas as pd
@@ -25,12 +26,14 @@ from volume import by_strike as volume
 class MarketState:
     def __init__(
         self,
+        as_of: datetime,
         spot: float,
         otm_quotes: pd.DataFrame,
         oi_chain: pd.DataFrame,
         spot_candles: dict | None,
         dvol_candles: list[list[float]] | None,
     ) -> None:
+        self.as_of = as_of
         self.spot = spot
         self.otm_quotes = otm_quotes  # shared across requests; treat as read-only
         self.oi_chain = oi_chain  # shared across requests; treat as read-only

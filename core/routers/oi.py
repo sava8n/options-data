@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
+from datetime import datetime
 
 import pandas as pd
 from fastapi import APIRouter, Query
@@ -42,7 +42,7 @@ def get_oi_by_expiration(currency: str = Query("BTC")) -> OIByExpirationResponse
     return OIByExpirationResponse(
         currency=cur,
         spot=state.spot,
-        as_of=datetime.now(timezone.utc),
+        as_of=state.as_of,
         points=points,
     )
 
@@ -82,7 +82,7 @@ def get_oi_by_strike(
     return OIByStrikeResponse(
         currency=cur,
         spot=state.spot,
-        as_of=datetime.now(timezone.utc),
+        as_of=state.as_of,
         expiries=state.oi_expiries,
         expiry=expiry,
         max_pain=max_pain,

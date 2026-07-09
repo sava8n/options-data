@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import logging
 import time
+from datetime import datetime, timezone
 
 from fastapi import HTTPException
 
@@ -65,6 +66,7 @@ def load_market_state(cur: str) -> MarketState:
             logger.warning("cannot fetch upstream data for currency=%s, %s", cur, exc)
             raise HTTPException(status_code=502, detail=str(exc)) from exc
         return MarketState(
+            as_of=datetime.now(timezone.utc),
             spot=spot,
             otm_quotes=prepare_otm_quotes(summaries, spot),
             oi_chain=prepare_oi_chain(summaries, spot),

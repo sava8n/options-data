@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
 from fastapi import APIRouter, Query
 
 from schemas.volume import VolumeByStrikePoint, VolumeByStrikeResponse
@@ -30,6 +28,6 @@ def get_volume_by_strike(currency: str = Query("BTC")) -> VolumeByStrikeResponse
     return VolumeByStrikeResponse(
         currency=cur,
         spot=state.spot,
-        as_of=datetime.now(timezone.utc),
+        as_of=state.as_of,
         points=points,
     )

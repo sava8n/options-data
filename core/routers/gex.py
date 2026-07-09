@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
 from fastapi import APIRouter, Query
 
 from schemas.gex import GEXByStrikePoint, GEXByStrikeResponse
@@ -31,7 +29,7 @@ def get_gex_by_strike(currency: str = Query("BTC")) -> GEXByStrikeResponse:
     return GEXByStrikeResponse(
         currency=cur,
         spot=state.spot,
-        as_of=datetime.now(timezone.utc),
+        as_of=state.as_of,
         flip=state.gex_flip,
         points=points,
     )

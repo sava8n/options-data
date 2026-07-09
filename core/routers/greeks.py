@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
 
 from fastapi import APIRouter, Query
 
@@ -38,7 +37,7 @@ def get_greeks_chain(currency: str = Query("BTC")) -> GreeksChainResponse:
     return GreeksChainResponse(
         currency=cur,
         spot=state.spot,
-        as_of=datetime.now(timezone.utc),
+        as_of=state.as_of,
         expiries=state.otm_expiries,
         points=points,
     )

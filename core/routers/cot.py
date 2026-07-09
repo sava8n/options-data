@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
 
 import pandas as pd
 from fastapi import APIRouter, HTTPException, Query
@@ -61,7 +60,7 @@ def get_cot_report(
         now=pd.Timestamp.now(tz="UTC").tz_localize(None),
     )
     return CotReportResponse(
-        as_of=datetime.now(timezone.utc),
+        as_of=state.as_of,
         window=win,
         method=mtd,
         micro_included_from=state.micro_included_from,
@@ -88,7 +87,7 @@ def get_cot_history() -> CotHistoryResponse:
         points.append(CotHistoryPoint(**point))
 
     return CotHistoryResponse(
-        as_of=datetime.now(timezone.utc),
+        as_of=state.as_of,
         micro_included_from=state.micro_included_from,
         price_from=state.price_from,
         points=points,
@@ -113,5 +112,5 @@ def get_cot_index(
     ]
 
     return CotIndexResponse(
-        as_of=datetime.now(timezone.utc), window=win, method=mtd, points=points
+        as_of=state.as_of, window=win, method=mtd, points=points
     )

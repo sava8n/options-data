@@ -1,24 +1,19 @@
+import { useIsFetching } from '@tanstack/react-query';
+
 import { useStats } from '../hooks/useStats';
-import { REFRESH_LABEL } from '../config';
 
 export default function StatusBar({ currency }: { currency: string }) {
-  const { isFetching, isError, dataUpdatedAt } = useStats(currency);
-  const updated = dataUpdatedAt ? new Date(dataUpdatedAt).toLocaleTimeString('en-GB') : '—';
+  const { data, isError } = useStats(currency);
+  const busy = useIsFetching() > 0;
 
-  const connClass = isError
-    ? 'statusbar__conn--err'
-    : isFetching
-      ? 'statusbar__conn--warn'
-      : 'statusbar__conn--ok';
-  const connText = isError ? '● DISCONNECTED' : isFetching ? '● SYNCING' : '● CONNECTED';
+  const updated = data ? new Date(data.as_of).toLocaleTimeString('en-GB') : '—';
 
   return (
     <footer className="statusbar">
       <span className="statusbar__item">UPD {updated}</span>
       <span className="statusbar__spacer" />
-      <span className={`statusbar__conn ${connClass}`}>{connText}</span>
-      <span className="statusbar__sep">│</span>
-      <span className="statusbar__item">REFRESH {REFRESH_LABEL}</span>
+      {busy && <span className="statusbar__conn statusbar__conn--warn">● SYNCING</span>}
+      {!busy && isError && <span className="statusbar__conn statusbar__conn--err">● ERR</span>}
     </footer>
   );
 }

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-
 from fastapi import APIRouter, Query
 
 from schemas.stats import StatsResponse
@@ -21,7 +19,7 @@ def get_stats(currency: str = Query("BTC")) -> StatsResponse:
     return StatsResponse(
         currency=cur,
         spot=state.spot,
-        as_of=datetime.now(timezone.utc),
+        as_of=state.as_of,
         dvol=state.dvol,
         dvol_rank=state.dvol_rank,
         iv30=state.iv30,

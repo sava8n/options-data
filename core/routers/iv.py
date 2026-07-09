@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
 
 from fastapi import APIRouter, Query
 
@@ -44,7 +43,7 @@ def get_iv_surface(currency: str = Query("BTC")) -> IVSurfaceResponse:
     return IVSurfaceResponse(
         currency=cur,
         spot=state.spot,
-        as_of=datetime.now(timezone.utc),
+        as_of=state.as_of,
         points=points,
     )
 
@@ -69,7 +68,7 @@ def get_iv_curves(currency: str = Query("BTC")) -> IVCurvesResponse:
     return IVCurvesResponse(
         currency=cur,
         spot=state.spot,
-        as_of=datetime.now(timezone.utc),
+        as_of=state.as_of,
         points=points,
     )
 
@@ -93,7 +92,7 @@ def get_iv_skew(currency: str = Query("BTC")) -> SkewResponse:
     return SkewResponse(
         currency=cur,
         spot=state.spot,
-        as_of=datetime.now(timezone.utc),
+        as_of=state.as_of,
         points=points,
     )
 
@@ -117,6 +116,6 @@ def get_iv_term_structure(currency: str = Query("BTC")) -> TermStructureResponse
     return TermStructureResponse(
         currency=cur,
         spot=state.spot,
-        as_of=datetime.now(timezone.utc),
+        as_of=state.as_of,
         points=points,
     )

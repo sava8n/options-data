@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
 
 from fastapi import APIRouter, Query
 
@@ -35,7 +34,7 @@ def get_prob_curves(currency: str = Query("BTC")) -> ProbCurvesResponse:
     return ProbCurvesResponse(
         currency=cur,
         spot=state.spot,
-        as_of=datetime.now(timezone.utc),
+        as_of=state.as_of,
         points=points,
     )
 1

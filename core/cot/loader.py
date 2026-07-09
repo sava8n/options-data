@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import logging
 import time
+from datetime import datetime, timezone
 
 from fastapi import HTTPException
 
@@ -58,6 +59,7 @@ def load_cot_state() -> CotState:
             logger.warning("cannot fetch COT data, %s", exc)
             raise HTTPException(status_code=502, detail=str(exc)) from exc
         return CotState(
+            as_of=datetime.now(timezone.utc),
             tidy=tidy,
             price_candles=_fetch_price_candles(prev.price_candles if prev else None),
         )

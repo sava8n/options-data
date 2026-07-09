@@ -1,3 +1,5 @@
+import { useIsFetching, useQueryClient } from '@tanstack/react-query';
+
 import { useStats } from '../hooks/useStats';
 import { ivFmt } from '../utils/format';
 
@@ -20,6 +22,12 @@ function Field({ k, v, amber }: { k: string; v: string; amber?: boolean }) {
 
 export default function Header({ currency }: { currency: string }) {
   const { data } = useStats(currency);
+  const queryClient = useQueryClient();
+  const busy = useIsFetching() > 0;
+
+  // invalidate rather than refetch: 
+  // mounted queries refetch now, the rest when their tab is next opened
+  const refresh = () => queryClient.invalidateQueries();
 
   return (
     <header className="header">
@@ -39,6 +47,9 @@ export default function Header({ currency }: { currency: string }) {
         />
         <Field k="SRC" v="DERIBIT" />
       </div>
+      <button className="refresh" onClick={refresh} disabled={busy}>
+        {busy ? '⟳ SYNCING' : '⟳ REFRESH'}
+      </button>
     </header>
   );
 }

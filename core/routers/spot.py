@@ -16,7 +16,8 @@ router = APIRouter(prefix="/spot", tags=["spot"])
 def get_spot_history(currency: str = Query("BTC")) -> SpotHistoryResponse:
     """A trailing year of daily spot candles."""
     cur = validate_currency(currency)
-    raw = load_market_state(cur).spot_candles
+    state = load_market_state(cur)
+    raw = state.spot_candles
 
     candles = []
     if raw and raw.get("status") == "ok":
@@ -37,6 +38,6 @@ def get_spot_history(currency: str = Query("BTC")) -> SpotHistoryResponse:
     return SpotHistoryResponse(
         currency=cur,
         instrument=f"{cur}_USDC",
-        as_of=datetime.now(timezone.utc),
+        as_of=state.as_of,
         candles=candles,
     )

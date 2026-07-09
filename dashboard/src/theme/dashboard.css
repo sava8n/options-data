@@ -80,6 +80,28 @@ body {
   flex: 1;
 }
 
+.refresh {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border-bright);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 2px;
+  padding: 6px 18px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.refresh:hover:not(:disabled) {
+  color: var(--amber);
+  border-color: var(--amber-dim);
+}
+
+.refresh:disabled {
+  color: var(--text-dim);
+  cursor: default;
+}
+
 .field {
   display: flex;
   align-items: baseline;

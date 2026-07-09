@@ -2,15 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
-import { REFRESH_INTERVAL_SECONDS } from './config';
 import './theme/dashboard.css';
 
+// query fetches on first mount then invalidated by refresh button
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchInterval: REFRESH_INTERVAL_SECONDS * 1000,
+      staleTime: Infinity,
+      gcTime: Infinity,
       refetchOnWindowFocus: false,
-      staleTime: 30_000,
       retry: 1,
     },
   },
