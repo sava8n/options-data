@@ -5,7 +5,8 @@ from __future__ import annotations
 from fastapi import APIRouter, Query
 
 from schemas.gex import GEXByStrikePoint, GEXByStrikeResponse
-from market.loader import load_market_state, validate_currency
+from market.loader import load_market_state
+from shared.currency import validate_currency
 
 router = APIRouter(prefix="/gex", tags=["gex"])
 

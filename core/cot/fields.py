@@ -1,15 +1,10 @@
-"""Contract codes, participant categories, and the verified Socrata field map."""
+"""Participant categories and the verified Socrata field map, common to every TFF market."""
 
 from __future__ import annotations
 
 DATE_FIELD = "report_date_as_yyyy_mm_dd"
 CODE_FIELD = "cftc_contract_market_code"
 OI_FIELD = "open_interest_all"
-
-# BTC per contract: CME Bitcoin (5 BTC) and Micro Bitcoin (0.1 BTC)
-BITCOIN_CODE = "133741"
-MICRO_BITCOIN_CODE = "133742"
-CONTRACT_WEIGHTS: dict[str, float] = {BITCOIN_CODE: 5.0, MICRO_BITCOIN_CODE: 0.1}
 
 # fixed display order
 CATEGORIES: tuple[str, ...] = ("dealer", "asset_mgr", "lev_money", "other_rept", "nonrept")

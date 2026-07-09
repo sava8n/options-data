@@ -40,8 +40,8 @@ export const usdFull = (v: number) =>
 // IV fraction: 0.42 -> "42%"
 export const ivFmt = (v: number) => `${Math.round(v * 100)}%`;
 
-// BTC-equivalent contracts, abbreviated, sign-aware: -94384.5 -> "-94.4k"
-export const btcEquiv = (v: number) => {
+// coin-equivalent contracts, abbreviated, sign-aware: -94384.5 -> "-94.4k"
+export const coinEquiv = (v: number) => {
   const abs = Math.abs(v);
   const body =
     abs >= 1000
@@ -51,10 +51,10 @@ export const btcEquiv = (v: number) => {
 };
 
 // delta variant with explicit plus: 2470 -> "+2.5k"
-export const btcEquivSigned = (v: number) => (v > 0 ? `+${btcEquiv(v)}` : btcEquiv(v));
+export const coinEquivSigned = (v: number) => (v > 0 ? `+${coinEquiv(v)}` : coinEquiv(v));
 
-// BTC-equivalent contracts, full: 94384.5 -> "94,384.5"
-export const btcFull = (v: number) =>
+// coin-equivalent contracts, full: 94384.5 -> "94,384.5"
+export const coinFull = (v: number) =>
   v.toLocaleString('en-US', { maximumFractionDigits: 1 });
 
 // signed percent: 12.34 -> "+12.3%"

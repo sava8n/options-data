@@ -14,7 +14,8 @@ from schemas.oi import (
     OIByStrikeResponse,
     OIByStrikePoint,
 )
-from market.loader import load_market_state, validate_currency
+from market.loader import load_market_state
+from shared.currency import validate_currency
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ router = APIRouter(prefix="/oi", tags=["open-interest"])
 
 @router.get("/expiration", response_model=OIByExpirationResponse)
 def get_oi_by_expiration(currency: str = Query("BTC")) -> OIByExpirationResponse:
-    """BTC open interest by expiration: per-expiry OI split into ITM/OTM calls and puts."""
+    """Open interest by expiration: per-expiry OI split into ITM/OTM calls and puts."""
     cur = validate_currency(currency)
     state = load_market_state(cur)
 
@@ -52,7 +53,7 @@ def get_oi_by_strike(
     currency: str = Query("BTC"),
     expiry: datetime | None = Query(None),
 ) -> OIByStrikeResponse:
-    """BTC open interest by strike: per-strike OI split into ITM/OTM calls and puts.
+    """Open interest by strike: per-strike OI split into ITM/OTM calls and puts.
 
     Without ``expiry`` the whole chain is grouped by strike. With ``expiry`` the chain
     is sliced to that expiry and the per-strike total intrinsic value (and the max-pain

@@ -5,7 +5,8 @@ from __future__ import annotations
 from fastapi import APIRouter, Query
 
 from schemas.volume import VolumeByStrikePoint, VolumeByStrikeResponse
-from market.loader import load_market_state, validate_currency
+from market.loader import load_market_state
+from shared.currency import validate_currency
 
 router = APIRouter(prefix="/volume", tags=["volume"])
 

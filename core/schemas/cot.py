@@ -1,5 +1,6 @@
-"""Response models for COT routes. All position values are BTC-equivalent contracts.
+"""Response models for COT routes. Position values are coin-equivalent contracts.
 
+Every response names its ``currency``, so the position fields carry no unit suffix.
 Report dates are plain dates: a naive-datetime serialization would be parsed as
 local time by the browser and can render one day off.
 """
@@ -14,11 +15,11 @@ from pydantic import BaseModel
 class CotReportRow(BaseModel):
     category: str
     label: str
-    long_btc: float
-    short_btc: float
-    spread_btc: float | None = None  # None, category has no spread series
-    net_btc: float
-    delta_net_btc: float | None = None  # None on the first report
+    long: float
+    short: float
+    spread: float | None = None  # None, category has no spread series
+    net: float
+    delta_net: float | None = None  # None on the first report
     delta_net_pct: float | None = None  # None when the prior net sits at zero
     net_pct_of_oi: float | None = None
     index: float | None = None  # None while the window is unfilled
@@ -27,6 +28,7 @@ class CotReportRow(BaseModel):
 
 
 class CotReportResponse(BaseModel):
+    currency: str
     as_of: datetime
     report_date: date
     prev_report_date: date | None
@@ -35,9 +37,9 @@ class CotReportResponse(BaseModel):
     is_stale: bool
     window: int
     method: str
-    oi_btc: float
-    delta_oi_btc: float | None
-    btc_price: float | None
+    oi: float
+    delta_oi: float | None
+    price: float | None
     oi_usd: float | None
     micro_included_from: date | None
     rows: list[CotReportRow]
@@ -45,7 +47,7 @@ class CotReportResponse(BaseModel):
 
 class CotHistoryPoint(BaseModel):
     report_date: date
-    oi_btc: float
+    oi: float
     price: float | None = None
     dealer_net: float
     dealer_delta: float | None = None
@@ -60,6 +62,7 @@ class CotHistoryPoint(BaseModel):
 
 
 class CotHistoryResponse(BaseModel):
+    currency: str
     as_of: datetime
     micro_included_from: date | None
     price_from: date | None
@@ -76,6 +79,7 @@ class CotIndexPoint(BaseModel):
 
 
 class CotIndexResponse(BaseModel):
+    currency: str
     as_of: datetime
     window: int
     method: str

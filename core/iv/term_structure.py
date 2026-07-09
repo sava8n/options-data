@@ -43,7 +43,7 @@ def atm_iv(group: pd.DataFrame, fwd: float) -> float | None:
 
 
 def build(prepared_quotes: pd.DataFrame) -> pd.DataFrame:
-    """BTC ATM IV term structure: one interpolated ATM IV per expiry, sorted by tte."""
+    """ATM IV term structure: one interpolated ATM IV per expiry, sorted by tte."""
     logger.info("building term structure")
     if prepared_quotes.empty:
         return _empty_term()

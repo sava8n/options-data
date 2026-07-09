@@ -7,7 +7,7 @@ import CotIndexSection from './CotIndexSection';
 import CotNetHistorySection from './CotNetHistorySection';
 import CotReportSection from './CotReportSection';
 
-export default function CotTab() {
+export default function CotTab({ currency }: { currency: string }) {
   const [window, setWindow] = useState<CotWindow>(52);
   const [method, setMethod] = useState<CotMethod>('rank');
   const [flowWeeks, setFlowWeeks] = useState(12);
@@ -22,12 +22,12 @@ export default function CotTab() {
         onMethod={setMethod}
         onFlowWeeks={setFlowWeeks}
       />
-      <CotReportSection window={window} method={method} />
+      <CotReportSection currency={currency} window={window} method={method} />
       <div className="panels">
-        <CotFlowSection weeks={flowWeeks} />
-        <CotIndexSection window={window} method={method} />
+        <CotFlowSection currency={currency} weeks={flowWeeks} />
+        <CotIndexSection currency={currency} window={window} method={method} />
       </div>
-      <CotNetHistorySection />
+      <CotNetHistorySection currency={currency} />
     </>
   );
 }

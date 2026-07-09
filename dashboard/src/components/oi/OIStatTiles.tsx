@@ -25,7 +25,7 @@ export default function OIStatTiles({ data }: { data: OIByStrikeResponse }) {
       putOI,
       totalOI,
       pcRatio: callOI > 0 ? putOI / callOI : null,
-      notional: totalOI * data.spot, // Deribit BTC option = 1 BTC/contract
+      notional: totalOI * data.spot, // Deribit coin option = 1 coin/contract
       maxPain: data.max_pain,
     };
   }, [data]);

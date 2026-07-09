@@ -16,7 +16,8 @@ from schemas.iv import (
     TermStructurePoint,
     TermStructureResponse,
 )
-from market.loader import load_market_state, validate_currency
+from market.loader import load_market_state
+from shared.currency import validate_currency
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ router = APIRouter(prefix="/iv", tags=["volatility"])
 
 @router.get("/surface", response_model=IVSurfaceResponse)
 def get_iv_surface(currency: str = Query("BTC")) -> IVSurfaceResponse:
-    """BTC options implied-volatility surface: (delta, expiry) -> IV, plus axis ticks."""
+    """Options implied-volatility surface: (delta, expiry) -> IV, plus axis ticks."""
     cur = validate_currency(currency)
     state = load_market_state(cur)
 
@@ -50,7 +51,7 @@ def get_iv_surface(currency: str = Query("BTC")) -> IVSurfaceResponse:
 
 @router.get("/curves", response_model=IVCurvesResponse)
 def get_iv_curves(currency: str = Query("BTC")) -> IVCurvesResponse:
-    """BTC options implied-volatility smile curves: (strike, expiry) -> IV, one curve per expiry."""
+    """Options implied-volatility smile curves: (strike, expiry) -> IV, one curve per expiry."""
     cur = validate_currency(currency)
     state = load_market_state(cur)
 
@@ -75,7 +76,7 @@ def get_iv_curves(currency: str = Query("BTC")) -> IVCurvesResponse:
 
 @router.get("/skew", response_model=SkewResponse)
 def get_iv_skew(currency: str = Query("BTC")) -> SkewResponse:
-    """BTC options 25Δ skew term structure: risk reversal and butterfly per expiry."""
+    """Options 25Δ skew term structure: risk reversal and butterfly per expiry."""
     cur = validate_currency(currency)
     state = load_market_state(cur)
 
@@ -99,7 +100,7 @@ def get_iv_skew(currency: str = Query("BTC")) -> SkewResponse:
 
 @router.get("/term-structure", response_model=TermStructureResponse)
 def get_iv_term_structure(currency: str = Query("BTC")) -> TermStructureResponse:
-    """BTC options ATM implied-volatility term structure: one ATM IV per expiry."""
+    """Options ATM implied-volatility term structure: one ATM IV per expiry."""
     cur = validate_currency(currency)
     state = load_market_state(cur)
 

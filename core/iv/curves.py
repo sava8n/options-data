@@ -12,6 +12,6 @@ CURVE_COLUMNS = ["expiry", "tte_years", "strike", "mark_iv", "option_type"]
 
 
 def build(prepared_quotes: pd.DataFrame) -> pd.DataFrame:
-    """BTC IV smile curves: OTM quotes keyed by (strike, expiry)."""
+    """IV smile curves: OTM quotes keyed by (strike, expiry)."""
     logger.info("building implied-volatility smile curves")
     return prepared_quotes[CURVE_COLUMNS]

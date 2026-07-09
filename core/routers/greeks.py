@@ -7,7 +7,8 @@ import logging
 from fastapi import APIRouter, Query
 
 from schemas.greeks import GreekChainPoint, GreeksChainResponse
-from market.loader import load_market_state, validate_currency
+from market.loader import load_market_state
+from shared.currency import validate_currency
 
 logger = logging.getLogger(__name__)
 

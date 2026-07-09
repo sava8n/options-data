@@ -2,8 +2,8 @@ import { useCotHistory } from '../../hooks/useCotHistory';
 import { expiryLabel } from '../../utils/format';
 import CotNetHistoryPanel from './CotNetHistoryPanel';
 
-export default function CotNetHistorySection() {
-  const { data, isLoading, isError, error } = useCotHistory();
+export default function CotNetHistorySection({ currency }: { currency: string }) {
+  const { data, isLoading, isError, error } = useCotHistory(currency);
   const points = data?.points.length ?? 0;
 
   return (
@@ -11,7 +11,7 @@ export default function CotNetHistorySection() {
       <div className="panel__title">
         <span className="panel__title-main">NET POSITIONING HISTORY</span>
         <span className="panel__title-sub">
-          NET BTC-EQUIV × CATEGORY · WEEKLY · BTC PRICE STRIP
+          NET {currency}-EQUIV × CATEGORY · WEEKLY · {currency} PRICE STRIP
           {data?.micro_included_from
             ? ` · MICRO FROM ${expiryLabel(data.micro_included_from)}`
             : ''}

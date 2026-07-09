@@ -7,11 +7,10 @@ import logging
 import numpy as np
 import pandas as pd
 
+from config import settings
 from shared.black76 import black76_delta
 
 logger = logging.getLogger(__name__)
-
-MIN_MARK_PRICE_BTC = 0.0005 # price floor — near-zero marks have unreliable mark_iv
 
 MIN_MARK_IV = 0.05
 MAX_MARK_IV = 5.00
@@ -44,7 +43,7 @@ def _empty_otm_quotes() -> pd.DataFrame:
 def _parse_instrument_fields(df: pd.DataFrame) -> pd.DataFrame:
     """Add ``expiry``, ``strike``, ``option_type`` and ``tte_years`` columns.
 
-    Parses Deribit's ``BTC-<DDMMMYY>-<STRIKE>-<C|P>`` ``instrument_name`` (expiries
+    Parses Deribit's ``<CURRENCY>-<DDMMMYY>-<STRIKE>-<C|P>`` ``instrument_name`` (expiries
     settle at 08:00 UTC). Unparseable strikes become ``NaN`` for the caller to drop.
     Shared by ``prepare_otm_quotes`` (OTM IV/greeks) and ``prepare_oi_chain`` (full chain).
     """
@@ -90,17 +89,17 @@ def prepare_otm_quotes(summaries: list[dict], spot: float) -> pd.DataFrame:
     df = df[
         (df["mark_iv"] >= MIN_MARK_IV)
         & (df["mark_iv"] <= MAX_MARK_IV)
-        & (df["mark_price"] >= MIN_MARK_PRICE_BTC)
+        & (df["mark_price"] >= settings.min_mark_price)
         # no-bid books have unreliable mark_iv
         & (df["bid_price"] > 0)
     ].copy()
     logger.debug(
-        "quality filters, kept %d/%d rows (mark_iv %.2f-%.2f, mark_price>=%.4f BTC, bid>0)",
+        "quality filters, kept %d/%d rows (mark_iv %.2f-%.2f, mark_price>=%.4f, bid>0)",
         len(df),
         n_pre_quality,
         MIN_MARK_IV,
         MAX_MARK_IV,
-        MIN_MARK_PRICE_BTC,
+        settings.min_mark_price,
     )
     if df.empty:
         logger.warning("no rows survived quote/expiry filters")

@@ -28,11 +28,11 @@ def build(history: pd.DataFrame, index: pd.DataFrame, prices: pd.Series, now: pd
             {
                 "category": cat,
                 "label": LABELS[cat],
-                "long_btc": float(last[f"{cat}_long"]),
-                "short_btc": float(last[f"{cat}_short"]),
-                "spread_btc": float(last[f"{cat}_spread"]) if POSITION_FIELDS[cat]["spread"] else None,
-                "net_btc": net,
-                "delta_net_btc": delta,
+                "long": float(last[f"{cat}_long"]),
+                "short": float(last[f"{cat}_short"]),
+                "spread": float(last[f"{cat}_spread"]) if POSITION_FIELDS[cat]["spread"] else None,
+                "net": net,
+                "delta_net": delta,
                 # % change is meaningless when the prior net sits at zero
                 "delta_net_pct": (
                     delta / abs(prev_net) * 100.0
@@ -52,9 +52,9 @@ def build(history: pd.DataFrame, index: pd.DataFrame, prices: pd.Series, now: pd
         "publication_date": publication,
         "is_new": now - publication <= NEW_WINDOW,
         "is_stale": now - report_date > STALE_AFTER,
-        "oi_btc": oi,
-        "delta_oi_btc": opt_float(last["oi_delta"]),
-        "btc_price": price,
+        "oi": oi,
+        "delta_oi": opt_float(last["oi_delta"]),
+        "price": price,
         "oi_usd": oi * price if price is not None else None,
         "rows": rows,
     }

@@ -7,7 +7,8 @@ import logging
 from fastapi import APIRouter, Query
 
 from schemas.prob import ProbCurvePoint, ProbCurvesResponse
-from market.loader import load_market_state, validate_currency
+from market.loader import load_market_state
+from shared.currency import validate_currency
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +17,7 @@ router = APIRouter(prefix="/prob", tags=["probabilities"])
 
 @router.get("/curves", response_model=ProbCurvesResponse)
 def get_prob_curves(currency: str = Query("BTC")) -> ProbCurvesResponse:
-    """BTC option-implied P(S_T > K): (strike, expiry) -> probability, one curve per expiry."""
+    """Option-implied P(S_T > K): (strike, expiry) -> probability, one curve per expiry."""
     cur = validate_currency(currency)
     state = load_market_state(cur)
 

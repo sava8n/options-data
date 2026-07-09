@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     market_cache_ttl_seconds: int = 10
     cot_cache_ttl_seconds: int = 3600
+    min_mark_price: float = 0.0005
 
     @property
     def cors_origin_list(self) -> list[str]:

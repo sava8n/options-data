@@ -66,7 +66,7 @@ export default function Dashboard({ currency }: { currency: string }) {
           </div>
         )}
 
-        {tab === 'cot' && <CotTab />}
+        {tab === 'cot' && <CotTab currency={currency} />}
       </main>
 
       <StatusBar currency={currency} />

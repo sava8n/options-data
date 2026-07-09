@@ -28,17 +28,6 @@ logger = logging.getLogger(__name__)
 _cache = TTLCache(settings.market_cache_ttl_seconds)
 
 
-def validate_currency(currency: str) -> str:
-    cur = currency.upper()
-    if cur not in settings.supported_currency_list:
-        logger.warning("rejected due to unsupported currency=%s", cur)
-        raise HTTPException(
-            status_code=422,
-            detail=f"Unsupported currency '{currency}'. Supported: {settings.supported_currency_list}",
-        )
-    return cur
-
-
 def _refresh_spot_candles(prev: dict | None, cur: str) -> dict | None:
     try:
         days = history.refresh_days(history.spot_last_tick(prev))

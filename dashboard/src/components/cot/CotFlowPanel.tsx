@@ -4,7 +4,7 @@ import type { EChartsOption } from 'echarts';
 
 import { AXIS_LINE, COT_CATEGORIES, GRID, ZERO, axisLabelStyle, axisNameStyle, tooltipStyle } from '../../theme/charts';
 import type { CotHistoryResponse } from '../../types';
-import { btcEquiv, btcEquivSigned, expiryLabel } from '../../utils/format';
+import { coinEquiv, coinEquivSigned, expiryLabel } from '../../utils/format';
 
 interface TooltipItem {
   marker?: string;
@@ -38,7 +38,7 @@ export default function CotFlowPanel({
         formatter: (params: TooltipItem[]) => {
           const head = params[0]?.axisValueLabel ?? '';
           const rows = params
-            .map((s) => `${s.marker} ${s.seriesName} ${btcEquivSigned(s.value ?? 0)}`)
+            .map((s) => `${s.marker} ${s.seriesName} ${coinEquivSigned(s.value ?? 0)}`)
             .join('<br/>');
           return `${head}<br/>${rows}`;
         },
@@ -53,12 +53,12 @@ export default function CotFlowPanel({
       },
       yAxis: {
         type: 'value',
-        name: 'ΔNET BTC',
+        name: `ΔNET ${data.currency}`,
         nameGap: 14,
         nameTextStyle: axisNameStyle,
         axisLine: { lineStyle: { color: AXIS_LINE } },
         axisTick: { lineStyle: { color: AXIS_LINE } },
-        axisLabel: { ...axisLabelStyle, formatter: btcEquiv },
+        axisLabel: { ...axisLabelStyle, formatter: coinEquiv },
         splitLine: { lineStyle: { color: GRID } },
       },
       series: COT_CATEGORIES.map((cat, i) => ({

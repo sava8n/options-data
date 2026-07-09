@@ -5,13 +5,15 @@ import { methodLabel } from './methods';
 import { windowLabel } from './windows';
 
 export default function CotIndexSection({
+  currency,
   window,
   method,
 }: {
+  currency: string;
   window: CotWindow;
   method: CotMethod;
 }) {
-  const { data, isLoading, isError, error } = useCotIndex(window, method);
+  const { data, isLoading, isError, error } = useCotIndex(currency, window, method);
   const points = data?.points.length ?? 0;
 
   return (

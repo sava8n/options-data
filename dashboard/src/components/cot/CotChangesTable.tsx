@@ -1,6 +1,6 @@
 import { COT_CATEGORIES } from '../../theme/charts';
 import type { CotReportResponse } from '../../types';
-import { btcEquivSigned, btcFull, expiryLabel, signedPct } from '../../utils/format';
+import { coinEquivSigned, coinFull, expiryLabel, signedPct } from '../../utils/format';
 import { methodLabel } from './methods';
 import { biggestMover } from './mover';
 import { windowLabel } from './windows';
@@ -46,12 +46,12 @@ export default function CotChangesTable({ data }: { data: CotReportResponse }) {
                   />
                   {row.label}
                 </td>
-                <td>{btcFull(row.long_btc)}</td>
-                <td>{btcFull(row.short_btc)}</td>
-                <td>{row.spread_btc != null ? btcFull(row.spread_btc) : '—'}</td>
-                <td>{btcFull(row.net_btc)}</td>
-                <td className={deltaClass(row.delta_net_btc)}>
-                  {row.delta_net_btc != null ? btcEquivSigned(row.delta_net_btc) : '—'}
+                <td>{coinFull(row.long)}</td>
+                <td>{coinFull(row.short)}</td>
+                <td>{row.spread != null ? coinFull(row.spread) : '—'}</td>
+                <td>{coinFull(row.net)}</td>
+                <td className={deltaClass(row.delta_net)}>
+                  {row.delta_net != null ? coinEquivSigned(row.delta_net) : '—'}
                 </td>
                 <td className={deltaClass(row.delta_net_pct)}>
                   {row.delta_net_pct != null ? signedPct(row.delta_net_pct) : '—'}

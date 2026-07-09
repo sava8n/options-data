@@ -4,7 +4,7 @@ import type { EChartsOption } from 'echarts';
 
 import { AMBER, AXIS_LINE, COT_CATEGORIES, GRID, MONO, ZERO, axisLabelStyle, axisNameStyle, tooltipStyle } from '../../theme/charts';
 import type { CotHistoryResponse } from '../../types';
-import { btcEquiv, btcFull, expiryLabel, usdShort } from '../../utils/format';
+import { coinEquiv, coinFull, expiryLabel, usdShort } from '../../utils/format';
 
 interface TooltipItem {
   marker?: string;
@@ -15,6 +15,7 @@ interface TooltipItem {
 
 export default function CotNetHistoryPanel({ data }: { data: CotHistoryResponse }) {
   const option = useMemo<EChartsOption>(() => {
+    const { currency } = data;
     const points = data.points;
     const labels = points.map((p) => expiryLabel(p.report_date));
     const hasPrice = points.some((p) => p.price != null);
@@ -73,7 +74,7 @@ export default function CotNetHistoryPanel({ data }: { data: CotHistoryResponse 
       ? [
           {
             type: 'line',
-            name: 'BTC',
+            name: currency,
             xAxisIndex: 1,
             yAxisIndex: 1,
             data: points.map((p) => p.price),
@@ -101,9 +102,9 @@ export default function CotNetHistoryPanel({ data }: { data: CotHistoryResponse 
           const head = params[0]?.axisValueLabel ?? '';
           const rows = params
             .map((s) =>
-              s.seriesName === 'BTC'
+              s.seriesName === currency
                 ? `${s.marker} ${s.seriesName} ${s.value != null ? usdShort(Number(s.value)) : '—'}`
-                : `${s.marker} ${s.seriesName} ${s.value != null ? btcFull(Number(s.value)) : '—'}`,
+                : `${s.marker} ${s.seriesName} ${s.value != null ? coinFull(Number(s.value)) : '—'}`,
             )
             .join('<br/>');
           return `${head}<br/>${rows}`;
@@ -129,13 +130,13 @@ export default function CotNetHistoryPanel({ data }: { data: CotHistoryResponse 
             {
               ...valueAxis,
               gridIndex: 0,
-              name: 'NET BTC',
-              axisLabel: { ...axisLabelStyle, formatter: btcEquiv },
+              name: `NET ${currency}`,
+              axisLabel: { ...axisLabelStyle, formatter: coinEquiv },
             },
             {
               ...valueAxis,
               gridIndex: 1,
-              name: 'BTC USD',
+              name: `${currency} USD`,
               axisLabel: { ...axisLabelStyle, formatter: usdShort },
             },
           ]
@@ -143,8 +144,8 @@ export default function CotNetHistoryPanel({ data }: { data: CotHistoryResponse 
             {
               ...valueAxis,
               gridIndex: 0,
-              name: 'NET BTC',
-              axisLabel: { ...axisLabelStyle, formatter: btcEquiv },
+              name: `NET ${currency}`,
+              axisLabel: { ...axisLabelStyle, formatter: coinEquiv },
             },
           ],
       dataZoom: [

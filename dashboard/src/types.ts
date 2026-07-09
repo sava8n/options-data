@@ -181,16 +181,16 @@ export interface OIByStrikeResponse {
   points: OIByStrikePoint[];
 }
 
-// COT values are BTC-equivalent contracts (5×CME Bitcoin + 0.1×Micro)
+// COT values are coin-equivalent contracts (for BTC: 5×CME Bitcoin + 0.1×Micro)
 
 export interface CotReportRow {
   category: string;
   label: string;
-  long_btc: number;
-  short_btc: number;
-  spread_btc: number | null; // null, category has no spread series
-  net_btc: number;
-  delta_net_btc: number | null; // null on the first report
+  long: number;
+  short: number;
+  spread: number | null; // null, category has no spread series
+  net: number;
+  delta_net: number | null; // null on the first report
   delta_net_pct: number | null; // null when the prior net sits at zero
   net_pct_of_oi: number | null;
   index: number | null; // null while the window is unfilled
@@ -199,6 +199,7 @@ export interface CotReportRow {
 }
 
 export interface CotReportResponse {
+  currency: string;
   as_of: string;
   report_date: string;
   prev_report_date: string | null;
@@ -207,9 +208,9 @@ export interface CotReportResponse {
   is_stale: boolean;
   window: number;
   method: string;
-  oi_btc: number;
-  delta_oi_btc: number | null;
-  btc_price: number | null;
+  oi: number;
+  delta_oi: number | null;
+  price: number | null;
   oi_usd: number | null;
   micro_included_from: string | null;
   rows: CotReportRow[];
@@ -217,7 +218,7 @@ export interface CotReportResponse {
 
 export interface CotHistoryPoint {
   report_date: string;
-  oi_btc: number;
+  oi: number;
   price: number | null;
   dealer_net: number;
   dealer_delta: number | null;
@@ -232,6 +233,7 @@ export interface CotHistoryPoint {
 }
 
 export interface CotHistoryResponse {
+  currency: string;
   as_of: string;
   micro_included_from: string | null;
   price_from: string | null;
@@ -248,6 +250,7 @@ export interface CotIndexPoint {
 }
 
 export interface CotIndexResponse {
+  currency: string;
   as_of: string;
   window: number;
   method: string;

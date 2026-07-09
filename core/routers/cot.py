@@ -19,6 +19,7 @@ from schemas.cot import (
     CotIndexResponse,
     CotReportResponse,
 )
+from shared.currency import validate_currency
 
 logger = logging.getLogger(__name__)
 
@@ -47,12 +48,13 @@ def _validate_method(method: str) -> str:
 
 @router.get("/report", response_model=CotReportResponse)
 def get_cot_report(
-    window: int = Query(52), method: str = Query("rank")
+    currency: str = Query("BTC"), window: int = Query(52), method: str = Query("rank")
 ) -> CotReportResponse:
-    """Latest TFF report vs the previous one, per participant category (BTC-equivalent)."""
+    """Latest TFF report vs the previous one, per participant category (coin-equivalent)."""
+    cur = validate_currency(currency)
     win = _validate_window(window)
     mtd = _validate_method(method)
-    state = load_cot_state()
+    state = load_cot_state(cur)
     payload = report_mod.build(
         state.history,
         state.index(win, mtd),
@@ -60,6 +62,7 @@ def get_cot_report(
         now=pd.Timestamp.now(tz="UTC").tz_localize(None),
     )
     return CotReportResponse(
+        currency=cur,
         as_of=state.as_of,
         window=win,
         method=mtd,
@@ -69,16 +72,17 @@ def get_cot_report(
 
 
 @router.get("/history", response_model=CotHistoryResponse)
-def get_cot_history() -> CotHistoryResponse:
-    """Full weekly history of net positioning per category with aligned BTC closes."""
-    state = load_cot_state()
+def get_cot_history(currency: str = Query("BTC")) -> CotHistoryResponse:
+    """Full weekly history of net positioning per category with aligned spot closes."""
+    cur = validate_currency(currency)
+    state = load_cot_state(cur)
     prices = state.weekly_prices
 
     points = []
     for date, row in state.history.iterrows():
         point = {
             "report_date": date,
-            "oi_btc": float(row["oi"]),
+            "oi": float(row["oi"]),
             "price": opt_float(prices.loc[date]),
         }
         for cat in CATEGORIES:
@@ -87,6 +91,7 @@ def get_cot_history() -> CotHistoryResponse:
         points.append(CotHistoryPoint(**point))
 
     return CotHistoryResponse(
+        currency=cur,
         as_of=state.as_of,
         micro_included_from=state.micro_included_from,
         price_from=state.price_from,
@@ -96,12 +101,13 @@ def get_cot_history() -> CotHistoryResponse:
 
 @router.get("/index", response_model=CotIndexResponse)
 def get_cot_index(
-    window: int = Query(52), method: str = Query("rank")
+    currency: str = Query("BTC"), window: int = Query(52), method: str = Query("rank")
 ) -> CotIndexResponse:
     """Rolling COT index (0-100, min-max or rank) per participant category."""
+    cur = validate_currency(currency)
     win = _validate_window(window)
     mtd = _validate_method(method)
-    state = load_cot_state()
+    state = load_cot_state(cur)
 
     points = [
         CotIndexPoint(
@@ -112,5 +118,5 @@ def get_cot_index(
     ]
 
     return CotIndexResponse(
-        as_of=state.as_of, window=win, method=mtd, points=points
+        currency=cur, as_of=state.as_of, window=win, method=mtd, points=points
     )

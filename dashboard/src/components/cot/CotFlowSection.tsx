@@ -1,15 +1,23 @@
 import { useCotHistory } from '../../hooks/useCotHistory';
 import CotFlowPanel from './CotFlowPanel';
 
-export default function CotFlowSection({ weeks }: { weeks: number }) {
-  const { data, isLoading, isError, error } = useCotHistory();
+export default function CotFlowSection({
+  currency,
+  weeks,
+}: {
+  currency: string;
+  weeks: number;
+}) {
+  const { data, isLoading, isError, error } = useCotHistory(currency);
   const points = data?.points.length ?? 0;
 
   return (
     <section className="panel">
       <div className="panel__title">
         <span className="panel__title-main">WOW NET FLOW</span>
-        <span className="panel__title-sub">ΔNET BTC-EQUIV × CATEGORY · LAST {weeks} REPORTS</span>
+        <span className="panel__title-sub">
+          ΔNET {currency}-EQUIV × CATEGORY · LAST {weeks} REPORTS
+        </span>
       </div>
 
       <div className="panel__body">
