@@ -44,6 +44,17 @@ def d1(
         )
 
 
+def d2(
+    forward: np.ndarray,
+    strike: np.ndarray,
+    tte_years: np.ndarray,
+    sigma: np.ndarray,
+) -> np.ndarray:
+    """Black-76 ``d2 = d1 - sigma*sqrt(tte)``; may be inf/NaN where inputs are invalid (guard with ``valid_mask``)."""
+    with np.errstate(divide="ignore", invalid="ignore"):
+        return d1(forward, strike, tte_years, sigma) - sigma * np.sqrt(tte_years)
+
+
 def black76_delta(
     forward: np.ndarray,
     strike: np.ndarray,

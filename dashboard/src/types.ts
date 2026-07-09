@@ -30,6 +30,21 @@ export interface IVCurvesResponse {
   points: CurvePoint[];
 }
 
+export interface ProbCurvePoint {
+  expiry: string;
+  tte_years: number;
+  strike: number;
+  prob_above: number; // P(S_T > K) under the forward measure, in [0, 1]
+  option_type: string;
+}
+
+export interface ProbCurvesResponse {
+  currency: string;
+  spot: number;
+  as_of: string;
+  points: ProbCurvePoint[];
+}
+
 export interface SkewPoint {
   expiry: string;
   tte_years: number;

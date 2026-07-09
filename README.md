@@ -10,6 +10,7 @@ Options and COT reports analytics for the BTC market based on real-time and hist
 - `iv-curves` - reuses the same BTC option chain and plots the implied-volatility **smile** as 2D line curves, one per **expiry**, over **strike**. Each curve keeps the out-of-the-money leg (puts below the forward, calls above), so every expiry forms a clean U-shape. IV values come directly from Deribit's `mark_iv`.
 - `term-structure` - plots the **ATM implied-volatility term structure** as a 2D line: one at-the-money IV point per **expiry**, spaced time-proportionally by **days to expiry**. The ATM IV is interpolated from each expiry's OTM smile to the forward (log-moneyness `ln(K/F) = 0`), revealing whether the vol market is in contango (upward) or backwardation (downward).
 - `iv-skew` - plots the **25Δ skew term structure** as two 2D lines over **days to expiry**: the **risk reversal** (`IV(25Δ call) - IV(25Δ put)`, skew direction) and the **butterfly** (`(25Δ call + 25Δ put)/2 - ATM IV`, wing richness). Wing IVs are interpolated over **delta** on each expiry's OTM smile; expiries without 25Δ coverage on both wings are skipped rather than extrapolated.
+- `prob-curves` - plots the **option implied-probability** of BTC expiring **above each strike** as 2D line curves, one per **expiry**, over **strike**. Each probability is the Black-76 digital under the forward measure - `P(S_T > K) = N(d2)` - computed per OTM quote from that strike's own `mark_iv`, so every expiry forms a downward-sloping S-curve (~100% deep ITM, ~0% deep OTM) with a dashed **spot** marker. The DTE window defaults to the front month (0-30 days, adjustable).
 - `greeks` - computes the Black-76 option **greeks** (delta, gamma, theta, vega) for each contract in the OTM chain and plots each greek over **strike** for a selected **expiry**. Uses the forward convention already used for the surface/curves (undiscounted, `r = 0`, σ = `mark_iv`). Conventions: delta is dimensionless, gamma is per **$1** forward move, vega is per **1 vol-point** (1%), theta is per **calendar day**.
 - `basis` - plots the **annualized forward basis** (`(F/S − 1)/T`) as one point per **expiry** over **days to expiry**, from the per-expiry forwards already carried by the term-structure response (no extra endpoint). Above zero = contango (forwards over spot), below = backwardation.
 - `gex-by-strike` - plots dealer **dollar gamma exposure by strike**: the full OI chain joined with each strike's OTM gamma (the call and put of a strike share it), one signed bar per strike of `OI·Γ·F²·1%` - calls positive, puts negative (dealers long call / short put gamma) - plus the net-GEX line and a marker for the **zero-gamma flip** (the cumulative net-GEX zero crossing nearest spot).
@@ -38,6 +39,7 @@ Then open **http://localhost:8080**.
 | GET    | `/api/iv/curves?currency={currency}`            | IV curves                            |
 | GET    | `/api/iv/term-structure?currency={currency}`    | ATM IV term structure                |
 | GET    | `/api/iv/skew?currency={currency}`              | 25Δ risk reversal & butterfly        |
+| GET    | `/api/prob/curves?currency={currency}`          | Implied P(S > K) per strike/expiry   |
 | GET    | `/api/greeks/chain?currency={currency}`         | Delta/gamma/theta/vega per contract  |
 | GET    | `/api/gex/strike?currency={currency}`           | Dollar gamma exposure by strike      |
 | GET    | `/api/oi/expiration?currency={currency}`        | Open interest by expiry              |
@@ -45,7 +47,7 @@ Then open **http://localhost:8080**.
 | GET    | `/api/volume/strike?currency={currency}`        | 24h traded volume by strike          |
 | GET    | `/api/cot/report?window={weeks}`                | Latest COT report vs previous (TFF)  |
 | GET    | `/api/cot/history`                              | Weekly net positioning history       |
-| GET    | `/api/cot/index?window={weeks}&method={m}`      | Rolling COT index (min-max / rank)   |
+| GET    | `/api/cot/index?window={weeks}&method={method}` | Rolling COT index (min-max / rank)   |
 
 > Note: API docs are available at http://localhost:8000/docs.
 

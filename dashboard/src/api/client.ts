@@ -8,6 +8,7 @@ import type {
   IVSurfaceResponse,
   OIByExpirationResponse,
   OIByStrikeResponse,
+  ProbCurvesResponse,
   SkewResponse,
   SpotHistoryResponse,
   StatsResponse,
@@ -38,6 +39,10 @@ export async function fetchIVSurface(currency = 'BTC'): Promise<IVSurfaceRespons
 
 export async function fetchIVCurves(currency = 'BTC'): Promise<IVCurvesResponse> {
   return fetchJson<IVCurvesResponse>(`/api/iv/curves?currency=${encodeURIComponent(currency)}`);
+}
+
+export async function fetchProbCurves(currency = 'BTC'): Promise<ProbCurvesResponse> {
+  return fetchJson<ProbCurvesResponse>(`/api/prob/curves?currency=${encodeURIComponent(currency)}`);
 }
 
 export async function fetchTermStructure(currency = 'BTC'): Promise<TermStructureResponse> {

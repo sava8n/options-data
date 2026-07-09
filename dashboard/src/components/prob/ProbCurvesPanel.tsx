@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 
-import type { IVCurvesResponse } from '../../types';
+import type { ProbCurvesResponse } from '../../types';
 import { expiryLabel, ivFmt, strikeFmt } from '../../utils/format';
 import {
   AMBER,
@@ -11,6 +11,7 @@ import {
   MONO,
   PALETTE,
   TEXT,
+  ZERO,
   axisLabelStyle,
   axisNameStyle,
   tooltipStyle,
@@ -19,12 +20,12 @@ import {
 interface ExpiryCurve {
   label: string;
   tte: number;
-  points: [number, number][]; // [strike, iv], ascending by strike
+  points: [number, number][]; // [strike, prob], ascending by strike
 }
 
-export default function IVCurvesPanel({ data }: { data: IVCurvesResponse }) {
+export default function ProbCurvesPanel({ data }: { data: ProbCurvesResponse }) {
   const option = useMemo<EChartsOption>(() => {
-    // group quotes by expiry, then build one smile curve (IV vs strike) per expiry.
+    // group quotes by expiry, then build one probability curve (P(S>K) vs strike) per expiry
     const byExpiry = new Map<string, { tte: number; strikes: Map<number, number[]> }>();
     for (const p of data.points) {
       let row = byExpiry.get(p.expiry);
@@ -32,19 +33,19 @@ export default function IVCurvesPanel({ data }: { data: IVCurvesResponse }) {
         row = { tte: p.tte_years, strikes: new Map() };
         byExpiry.set(p.expiry, row);
       }
-      const ivs = row.strikes.get(p.strike);
-      if (ivs) ivs.push(p.mark_iv);
-      else row.strikes.set(p.strike, [p.mark_iv]);
+      const probs = row.strikes.get(p.strike);
+      if (probs) probs.push(p.prob_above);
+      else row.strikes.set(p.strike, [p.prob_above]);
     }
 
     const curves: ExpiryCurve[] = [...byExpiry.entries()]
       .map(([iso, row]) => {
-        // ascending strikes; average IV where a call and a put share a strike.
+        // ascending strikes; average where a call and a put share a strike
         const points = [...row.strikes.entries()]
           .sort((a, b) => a[0] - b[0])
-          .map(([strike, ivs]) => [
+          .map(([strike, probs]) => [
             strike,
-            ivs.reduce((s, v) => s + v, 0) / ivs.length,
+            probs.reduce((s, v) => s + v, 0) / probs.length,
           ] as [number, number]);
         return { label: expiryLabel(iso), tte: row.tte, points };
       })
@@ -59,8 +60,8 @@ export default function IVCurvesPanel({ data }: { data: IVCurvesResponse }) {
         formatter: (p: { seriesName?: string; value?: number[] }) => {
           const arr = p.value ?? [];
           if (arr.length < 2) return '';
-          const [k, iv] = arr;
-          return `${p.seriesName}<br/>K ${k.toLocaleString('en-US')}<br/>IV ${(iv * 100).toFixed(1)}%`;
+          const [k, prob] = arr;
+          return `${p.seriesName}<br/>K ${k.toLocaleString('en-US')}<br/>P ${(prob * 100).toFixed(1)}%`;
         },
       },
       legend: {
@@ -92,23 +93,40 @@ export default function IVCurvesPanel({ data }: { data: IVCurvesResponse }) {
       },
       yAxis: {
         type: 'value',
-        name: 'IV',
+        name: 'P(S>K)',
         nameGap: 12,
         nameTextStyle: axisNameStyle,
-        scale: true,
+        min: 0,
+        max: 1,
         axisLine: { lineStyle: { color: AXIS_LINE } },
         axisTick: { lineStyle: { color: AXIS_LINE } },
         axisLabel: { ...axisLabelStyle, formatter: ivFmt },
         splitLine: { lineStyle: { color: GRID } },
       },
-      series: curves.map((c) => ({
+      series: curves.map((c, i) => ({
         type: 'line',
         name: c.label,
         data: c.points,
-        showSymbol: false,
+        showSymbol: true,
+        symbol: 'circle',
+        symbolSize: 4,
         smooth: true,
         lineStyle: { width: 1.5 },
         emphasis: { focus: 'series', lineStyle: { width: 3 } },
+        ...(i === 0 && {
+          markLine: {
+            silent: true,
+            symbol: 'none',
+            lineStyle: { color: ZERO, type: 'dashed', width: 1 },
+            label: {
+              color: ZERO,
+              fontFamily: MONO,
+              fontSize: 10,
+              formatter: 'SPOT',
+            },
+            data: [{ xAxis: data.spot }],
+          },
+        }),
       })),
     };
 

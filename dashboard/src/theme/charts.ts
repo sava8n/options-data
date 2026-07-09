@@ -5,6 +5,17 @@ export const GRID = '#243133';
 export const AXIS_LINE = '#3a4a4d';
 export const MONO = 'monospace';
 
+// legend/label text on multi-series charts
+export const TEXT = '#c8d0d0';
+
+// categorical palette for multi-expiry line charts, one color per series
+export const PALETTE = [
+  '#ffb000', '#4aa3ff', '#33ff66', '#ff6b6b', '#b388ff',
+  '#ffd24a', '#2ee6c5', '#ff8adf', '#7cff4a', '#ff9d4a',
+  '#6ce5ff', '#c0c8c8', '#e05aff', '#f0f0f0', '#8fa0ff',
+  '#d4b483',
+];
+
 export const axisLabelStyle = { color: AMBER, fontFamily: MONO, fontSize: 11 };
 export const axisNameStyle = { color: AMBER, fontFamily: MONO, fontSize: 13 };
 
