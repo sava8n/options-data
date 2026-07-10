@@ -49,4 +49,6 @@ npm install
 npm run dev # serves http://localhost:5173, proxies /api -> :8000
 ```
 
-> Note: API docs are available at http://localhost:8000/docs.
+## API
+
+API docs are available at http://localhost:8000/docs.
