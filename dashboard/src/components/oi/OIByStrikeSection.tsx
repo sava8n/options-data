@@ -1,17 +1,26 @@
 import { useState } from 'react';
 
+import { FRONT_EXPIRY } from '../../config';
 import { useOIByStrike } from '../../hooks/useOIByStrike';
+import { frontExpiry } from '../../utils/expiry';
 import { expiryLabel } from '../../utils/format';
 import OIByStrikePanel from './OIByStrikePanel';
 import OIStatTiles from './OIStatTiles';
 
 export default function OIByStrikeSection({ currency }: { currency: string }) {
-  // "" = all expirations; otherwise an expiry ISO string.
-  const [picked, setPicked] = useState('');
-  const { data, isLoading, isError, error } = useOIByStrike(currency, picked || null);
+  const all = useOIByStrike(currency);
+  const expiries = all.data?.expiries ?? [];
+  const front = frontExpiry(expiries, FRONT_EXPIRY);
+
+  // null = untouched, take the front expiry;
+  // "" = user asked for all expirations
+  const [picked, setPicked] = useState<string | null>(null);
+  const kept = picked !== null && (picked === '' || expiries.includes(picked));
+  const selected = kept ? (picked as string) : front ?? '';
+
+  const { data, isLoading, isError, error } = useOIByStrike(currency, selected || null);
 
   const points = data?.points.length ?? 0;
-  const expiries = data?.expiries ?? [];
 
   return (
     <section className="panel">
@@ -22,7 +31,7 @@ export default function OIByStrikeSection({ currency }: { currency: string }) {
           <span className="expiry__label">EXPIRY</span>
           <select
             className="expiry__select"
-            value={picked}
+            value={selected}
             onChange={(e) => setPicked(e.target.value)}
           >
             <option value="">ALL EXPIRATIONS</option>

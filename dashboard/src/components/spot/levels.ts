@@ -22,18 +22,6 @@ export interface QuantileBand {
 
 const FLIP = '#ff3b30';
 const MAX_PAIN = '#b06cf0';
-const TARGET_TTE = SPOT_CHART_LEVELS.bandDte / 365.25; // day-count
-
-// Deribit monthlies settle on the last Friday of a month
-function isMonthly(iso: string): boolean {
-  const d = new Date(iso);
-  if (d.getUTCDay() !== 5) return false;
-  return new Date(d.getTime() + 7 * 86_400_000).getUTCMonth() !== d.getUTCMonth();
-}
-
-export function frontMonthlyExpiry(expiries: string[]): string | undefined {
-  return expiries.find(isMonthly) ?? expiries[0];
-}
 
 // largest strike of one option side; undefined when the side has no OI
 function wall(
@@ -91,10 +79,10 @@ function deduplicate(levels: PriceLevel[]): PriceLevel[] {
 }
 
 // options-derived levels for the market strip:
-// - GEX flip
-// - front-month max pain
-// - front-month call/put OI walls
-// - clustered call-GEX resistance / put-GEX support
+// - GEX flip (whole chain)
+// - front-expiry max pain
+// - front-expiry call/put OI walls
+// - clustered call-GEX resistance / put-GEX support (whole chain)
 export function buildLevels(
   gex: GEXByStrikeResponse | undefined,
   oiAll: OIByStrikeResponse | undefined,
@@ -141,7 +129,7 @@ export function buildLevels(
       eligible.filter((p) => p.strike >= spot).map((p) => ({ strike: p.strike, weight: p.call_gex })),
     );
     if (res) levels.push({ price: res.price, title: `GEX RES ${usdShort(res.weight)}`, color: CALL });
-    // dealers are short put gamma, so put GEX is negative; magnitude is the weight
+    // dealers are short put gamma, so put GEX is negative, magnitude is the weight
     const sup = clusterLevel(
       eligible.filter((p) => p.strike <= spot).map((p) => ({ strike: p.strike, weight: -p.put_gex })),
     );
@@ -151,11 +139,16 @@ export function buildLevels(
   return deduplicate(levels);
 }
 
-// implied P16/P50/P84 at the expiry nearest the band horizon
-export function buildQuantileBand(prob: ProbCurvesResponse | undefined): QuantileBand | undefined {
-  if (!prob?.quantiles?.length) return undefined;
+// implied p16/p50/p84 at the front expiry
+export function buildQuantileBand(
+  prob: ProbCurvesResponse | undefined,
+  expiry: string | undefined,
+): QuantileBand | undefined {
+  if (!prob?.quantiles?.length || !expiry) return undefined;
+  const target = Date.parse(expiry);
   const row = [...prob.quantiles].sort(
-    (a, b) => Math.abs(a.tte_years - TARGET_TTE) - Math.abs(b.tte_years - TARGET_TTE),
+    (a, b) =>
+      Math.abs(Date.parse(a.expiry) - target) - Math.abs(Date.parse(b.expiry) - target),
   )[0];
   return { p16: row.p16, p50: row.p50, p84: row.p84 };
 }

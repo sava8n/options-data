@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 
+import { FRONT_EXPIRY } from '../../config';
 import { useGreeksChain } from '../../hooks/useGreeksChain';
 import type { GreekName } from '../../api/client';
+import { frontExpiry } from '../../utils/expiry';
 import { expiryLabel } from '../../utils/format';
 import GreekPanel, { type GreekPoint } from './GreekPanel';
 
@@ -18,8 +20,9 @@ export default function GreekSection({ greek, label, color, currency, valueFmt }
   const expiries = query.data?.expiries ?? [];
 
   const [picked, setPicked] = useState<string | null>(null);
-  // fall back to the nearest expiry until the user picks one (or if the pick expired out).
-  const selectedExpiry = picked && expiries.includes(picked) ? picked : expiries[0] ?? null;
+  // fall back to the front expiry
+  const selectedExpiry =
+    picked && expiries.includes(picked) ? picked : frontExpiry(expiries, FRONT_EXPIRY) ?? null;
 
   const points = useMemo<GreekPoint[]>(() => {
     if (!query.data || !selectedExpiry) return [];
