@@ -1,7 +1,6 @@
 import Dashboard from './components/Dashboard';
-
-const CURRENCY = 'BTC';
+import { DEFAULT_CURRENCY } from './config';
 
 export default function App() {
-  return <Dashboard currency={CURRENCY} />;
+  return <Dashboard currency={DEFAULT_CURRENCY} />;
 }

@@ -16,7 +16,7 @@ from gex import by_strike as gex
 from greeks.chain import build_chain
 from iv import curves, skew as skew_mod, surface, term_structure as term
 from oi import by_expiration, by_strike
-from prob import curves as prob_mod
+from prob import curves as prob_mod, quantiles as prob_quantiles_mod
 from stats.dvol import dvol_stats
 from stats.iv30 import atm_iv_at
 from stats.realized import realized_vol
@@ -67,6 +67,10 @@ class MarketState:
     @cached_property
     def prob_curves(self) -> pd.DataFrame:
         return prob_mod.build(self.otm_quotes)
+
+    @cached_property
+    def prob_quantiles(self) -> pd.DataFrame:
+        return prob_quantiles_mod.build(self.prob_curves)
 
     @cached_property
     def gex_by_strike(self) -> pd.DataFrame:

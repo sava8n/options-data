@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { MAX_DTE, MIN_DTE } from '../../config';
+import { DEFAULT_MAX_DTE, DEFAULT_MIN_DTE } from '../../config';
 import { useProbCurves } from '../../hooks/useProbCurves';
 import { filterByDTE } from '../../utils/dte';
 import DTEControl from '../shared/DTEControl';
@@ -9,8 +9,8 @@ import ProbCurvesPanel from './ProbCurvesPanel';
 export default function ProbCurvesSection({ currency }: { currency: string }) {
   const { data, isLoading, isError, error } = useProbCurves(currency);
 
-  const [minDte, setMinDte] = useState(MIN_DTE);
-  const [maxDte, setMaxDte] = useState(MAX_DTE);
+  const [minDte, setMinDte] = useState(DEFAULT_MIN_DTE);
+  const [maxDte, setMaxDte] = useState(DEFAULT_MAX_DTE);
   const windowed = useMemo(
     () => (data ? { ...data, points: filterByDTE(data.points, minDte, maxDte) } : undefined),
     [data, minDte, maxDte],
@@ -23,8 +23,8 @@ export default function ProbCurvesSection({ currency }: { currency: string }) {
         <span className="panel__title-main">IMPLIED PROBABILITIES</span>
         <span className="panel__title-sub">2D · STRIKE × P(S&gt;K) · PER EXPIRY</span>
         <DTEControl
-          defaultMin={MIN_DTE}
-          defaultMax={MAX_DTE}
+          defaultMin={DEFAULT_MIN_DTE}
+          defaultMax={DEFAULT_MAX_DTE}
           onChange={(min, max) => {
             setMinDte(min);
             setMaxDte(max);

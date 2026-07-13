@@ -10,22 +10,25 @@ import {
 } from 'lightweight-charts';
 
 import type { SpotCandle } from '../../types';
-import type { PriceLevel } from './levels';
+import type { PriceLevel, QuantileBand } from './levels';
+import { QuantileBandPrimitive } from './QuantileBandPrimitive';
 import { AMBER, AXIS_LINE, GRID, MONO } from '../../theme/charts';
+import { SPOT_CHART_LOOKBACK_DAYS } from '../../config';
 
 const UP = '#33ff66';
 const DOWN = '#ff3b30';
-const DEFAULT_WINDOW_DAYS = 180;
 
 interface Props {
   candles: SpotCandle[];
   levels: PriceLevel[];
+  band?: QuantileBand;
 }
 
-export default function SpotHistoryPanel({ candles, levels }: Props) {
+export default function SpotHistoryPanel({ candles, levels, band }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
+  const bandRef = useRef<QuantileBandPrimitive | null>(null);
   const priceLinesRef = useRef<IPriceLine[]>([]);
   const windowedRef = useRef(false);
 
@@ -79,12 +82,17 @@ export default function SpotHistoryPanel({ candles, levels }: Props) {
       borderVisible: false,
     });
 
+    const bandPrimitive = new QuantileBandPrimitive();
+    series.attachPrimitive(bandPrimitive);
+
     chartRef.current = chart;
     seriesRef.current = series;
+    bandRef.current = bandPrimitive;
     return () => {
       chart.remove();
       chartRef.current = null;
       seriesRef.current = null;
+      bandRef.current = null;
       priceLinesRef.current = [];
       windowedRef.current = false;
     };
@@ -95,10 +103,10 @@ export default function SpotHistoryPanel({ candles, levels }: Props) {
     const series = seriesRef.current;
     if (!chart || !series) return;
     series.setData(rows);
-    // default view on first load; later refetches keep the user's zoom/pan.
+    // default view on first load; later refetches keep the user's zoom/pan
     if (!windowedRef.current) {
       chart.timeScale().setVisibleLogicalRange({
-        from: Math.max(0, rows.length - DEFAULT_WINDOW_DAYS),
+        from: Math.max(0, rows.length - SPOT_CHART_LOOKBACK_DAYS),
         to: rows.length,
       });
       windowedRef.current = true;
@@ -121,6 +129,11 @@ export default function SpotHistoryPanel({ candles, levels }: Props) {
       }),
     );
   }, [levels]);
+
+  // implied quantile band as a background rectangle behind the candles
+  useEffect(() => {
+    bandRef.current?.setBand(band ?? null);
+  }, [band]);
 
   return <div ref={containerRef} />;
 }

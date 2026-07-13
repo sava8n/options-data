@@ -15,8 +15,17 @@ class ProbCurvePoint(BaseModel):
     option_type: str
 
 
+class ProbQuantileRow(BaseModel):
+    expiry: datetime
+    tte_years: float
+    p16: float | None  # K with P(S_T <= K) = 0.16; None when the curve does not span it
+    p50: float | None
+    p84: float | None
+
+
 class ProbCurvesResponse(BaseModel):
     currency: str
     spot: float
     as_of: datetime
     points: list[ProbCurvePoint]
+    quantiles: list[ProbQuantileRow]

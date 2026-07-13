@@ -1,0 +1,100 @@
+import type {
+  IPrimitivePaneRenderer,
+  IPrimitivePaneView,
+  ISeriesApi,
+  ISeriesPrimitive,
+  SeriesAttachedParameter,
+  SeriesType,
+  Time,
+} from 'lightweight-charts';
+
+import { MONO } from '../../theme/charts';
+import type { QuantileBand } from './levels';
+
+const BAND_FILL = 'rgba(200, 208, 208, 0.10)';
+const EDGE_LINE = 'rgba(200, 208, 208, 0.5)';
+const MID_LINE = 'rgba(200, 208, 208, 0.7)';
+const LABEL = 'rgba(200, 208, 208, 0.9)';
+const LABEL_OFFSET_X = 8;
+
+const priceFmt = (p: number) => Math.round(p).toLocaleString('en-US');
+
+type DrawTarget = Parameters<IPrimitivePaneRenderer['draw']>[0];
+
+export class QuantileBandPrimitive implements ISeriesPrimitive<Time> {
+  private series: ISeriesApi<SeriesType> | null = null;
+  private requestUpdate: (() => void) | null = null;
+  private band: QuantileBand | null = null;
+
+  private readonly paneView: IPrimitivePaneView = {
+    zOrder: () => 'bottom',
+    renderer: (): IPrimitivePaneRenderer => ({
+      draw: (target: DrawTarget) => this.draw(target),
+    }),
+  };
+
+  attached({ series, requestUpdate }: SeriesAttachedParameter<Time>): void {
+    this.series = series;
+    this.requestUpdate = requestUpdate;
+  }
+
+  detached(): void {
+    this.series = null;
+    this.requestUpdate = null;
+  }
+
+  paneViews(): readonly IPrimitivePaneView[] {
+    return [this.paneView];
+  }
+
+  setBand(band: QuantileBand | null): void {
+    this.band = band;
+    this.requestUpdate?.();
+  }
+
+  private draw(target: DrawTarget): void {
+    const { series, band } = this;
+    if (!series || !band) return;
+    target.useMediaCoordinateSpace(({ context, mediaSize }) => {
+      const { width, height } = mediaSize;
+      const yOf = (p: number | null) => (p == null ? null : series.priceToCoordinate(p));
+      const y16 = yOf(band.p16);
+      const y50 = yOf(band.p50);
+      const y84 = yOf(band.p84);
+
+      if (y16 != null && y84 != null) {
+        const top = Math.max(Math.min(y16, y84), 0);
+        const bottom = Math.min(Math.max(y16, y84), height);
+        if (bottom > top) {
+          context.fillStyle = BAND_FILL;
+          context.fillRect(0, top, width, bottom - top);
+        }
+      }
+
+      context.font = `10px ${MONO}`;
+      const mark = (
+        y: number | null,
+        price: number | null,
+        name: string,
+        stroke: string,
+        dash: number[],
+        labelBelow: boolean,
+      ) => {
+        if (y == null || price == null || y < 0 || y > height) return;
+        context.strokeStyle = stroke;
+        context.lineWidth = 1;
+        context.setLineDash(dash);
+        context.beginPath();
+        context.moveTo(0, y);
+        context.lineTo(width, y);
+        context.stroke();
+        context.fillStyle = LABEL;
+        context.textBaseline = labelBelow ? 'top' : 'bottom';
+        context.fillText(`${name} ${priceFmt(price)}`, LABEL_OFFSET_X, labelBelow ? y + 3 : y - 3);
+      };
+      mark(y84, band.p84, 'P84', EDGE_LINE, [], true);
+      mark(y50, band.p50, 'P50', MID_LINE, [2, 3], false);
+      mark(y16, band.p16, 'P16', EDGE_LINE, [], false);
+    });
+  }
+}

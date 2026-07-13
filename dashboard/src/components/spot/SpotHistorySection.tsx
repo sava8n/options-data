@@ -2,9 +2,10 @@ import { useMemo } from 'react';
 
 import { useGEXByStrike } from '../../hooks/useGEXByStrike';
 import { useOIByStrike } from '../../hooks/useOIByStrike';
+import { useProbCurves } from '../../hooks/useProbCurves';
 import { useSpotHistory } from '../../hooks/useSpotHistory';
 import SpotHistoryPanel from './SpotHistoryPanel';
-import { buildLevels, frontMonthlyExpiry } from './levels';
+import { buildLevels, buildQuantileBand, frontMonthlyExpiry } from './levels';
 
 export default function SpotHistorySection({ currency }: { currency: string }) {
   const { data, isLoading, isError, error } = useSpotHistory(currency);
@@ -15,10 +16,12 @@ export default function SpotHistorySection({ currency }: { currency: string }) {
   const oiAll = useOIByStrike(currency);
   const frontExpiry = oiAll.data ? frontMonthlyExpiry(oiAll.data.expiries) : undefined;
   const oiFront = useOIByStrike(currency, frontExpiry);
+  const prob = useProbCurves(currency);
   const levels = useMemo(
     () => buildLevels(gex.data, oiAll.data, oiFront.data),
     [gex.data, oiAll.data, oiFront.data],
   );
+  const band = useMemo(() => buildQuantileBand(prob.data), [prob.data]);
 
   return (
     <section className="panel panel--full">
@@ -37,7 +40,7 @@ export default function SpotHistorySection({ currency }: { currency: string }) {
           <div className="panel__msg panel__msg--warn">INSUFFICIENT DATA · {candles.length} PTS</div>
         )}
         {!isLoading && !isError && candles.length >= 2 && (
-          <SpotHistoryPanel candles={candles} levels={levels} />
+          <SpotHistoryPanel candles={candles} levels={levels} band={band} />
         )}
       </div>
     </section>

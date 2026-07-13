@@ -38,11 +38,20 @@ export interface ProbCurvePoint {
   option_type: string;
 }
 
+export interface ProbQuantileRow {
+  expiry: string;
+  tte_years: number;
+  p16: number | null; // K with P(S_T <= K) = 0.16; null when the curve does not span it
+  p50: number | null;
+  p84: number | null;
+}
+
 export interface ProbCurvesResponse {
   currency: string;
   spot: number;
   as_of: string;
   points: ProbCurvePoint[];
+  quantiles: ProbQuantileRow[];
 }
 
 export interface SkewPoint {

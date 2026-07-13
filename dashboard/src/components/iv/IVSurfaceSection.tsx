@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { MAX_DTE, MIN_DTE } from '../../config';
+import { DEFAULT_MAX_DTE, DEFAULT_MIN_DTE } from '../../config';
 import { useIVSurface } from '../../hooks/useIVSurface';
 import { filterByDTE } from '../../utils/dte';
 import DTEControl from '../shared/DTEControl';
@@ -9,8 +9,8 @@ import IVSurfacePanel from './IVSurfacePanel';
 export default function IVSurfaceSection({ currency }: { currency: string }) {
   const { data, isLoading, isError, error } = useIVSurface(currency);
 
-  const [minDte, setMinDte] = useState(MIN_DTE);
-  const [maxDte, setMaxDte] = useState(MAX_DTE);
+  const [minDte, setMinDte] = useState(DEFAULT_MIN_DTE);
+  const [maxDte, setMaxDte] = useState(DEFAULT_MAX_DTE);
   const windowed = useMemo(
     () => (data ? { ...data, points: filterByDTE(data.points, minDte, maxDte) } : undefined),
     [data, minDte, maxDte],
@@ -23,8 +23,8 @@ export default function IVSurfaceSection({ currency }: { currency: string }) {
         <span className="panel__title-main">IMPLIED VOLATILITY SURFACE</span>
         <span className="panel__title-sub">3D · DELTA × EXPIRY × IV</span>
         <DTEControl
-          defaultMin={MIN_DTE}
-          defaultMax={MAX_DTE}
+          defaultMin={DEFAULT_MIN_DTE}
+          defaultMax={DEFAULT_MAX_DTE}
           onChange={(min, max) => {
             setMinDte(min);
             setMaxDte(max);
