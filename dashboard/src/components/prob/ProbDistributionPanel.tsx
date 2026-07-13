@@ -47,7 +47,8 @@ export default function ProbDistributionPanel({
       );
 
     // Bucket mass between adjacent strikes: P(K1 < S <= K2) = P(S>K1) - P(S>K2).
-    // Per-strike IVs can locally invert the curve, so clamp negatives to zero.
+    // The backend smooths the smile and enforces a monotone survival curve, so
+    // negative masses should not occur, the clamp stays as a guard.
     // Tail buckets close the distribution so the bars sum to ~100%.
     const first = curve[0];
     const last = curve[curve.length - 1];
