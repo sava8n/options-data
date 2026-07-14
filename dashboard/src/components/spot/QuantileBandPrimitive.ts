@@ -9,6 +9,7 @@ import type {
 } from 'lightweight-charts';
 
 import { MONO } from '../../theme/charts';
+import { priceWhole } from '../../utils/format';
 import type { QuantileBand } from './levels';
 
 const BAND_FILL = 'rgba(200, 208, 208, 0.10)';
@@ -16,8 +17,6 @@ const EDGE_LINE = 'rgba(200, 208, 208, 0.5)';
 const MID_LINE = 'rgba(200, 208, 208, 0.7)';
 const LABEL = 'rgba(200, 208, 208, 0.9)';
 const LABEL_OFFSET_X = 8;
-
-const priceFmt = (p: number) => Math.round(p).toLocaleString('en-US');
 
 type DrawTarget = Parameters<IPrimitivePaneRenderer['draw']>[0];
 
@@ -90,7 +89,7 @@ export class QuantileBandPrimitive implements ISeriesPrimitive<Time> {
         context.stroke();
         context.fillStyle = LABEL;
         context.textBaseline = labelBelow ? 'top' : 'bottom';
-        context.fillText(`${name} ${priceFmt(price)}`, LABEL_OFFSET_X, labelBelow ? y + 3 : y - 3);
+        context.fillText(`${name} ${priceWhole(price)}`, LABEL_OFFSET_X, labelBelow ? y + 3 : y - 3);
       };
       mark(y84, band.p84, 'P84', EDGE_LINE, [], true);
       mark(y50, band.p50, 'P50', MID_LINE, [2, 3], false);

@@ -37,8 +37,15 @@ export const usdShort = (v: number) => {
 export const usdFull = (v: number) =>
   `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
+// price, whole units, unprefixed for price axes: 61500.4 -> "61,500"
+export const priceWhole = (v: number) =>
+  v.toLocaleString('en-US', { maximumFractionDigits: 0 });
+
 // IV fraction: 0.42 -> "42%"
 export const ivFmt = (v: number) => `${Math.round(v * 100)}%`;
+
+// DVOL index level: 0.382 -> "38.2"
+export const dvolFmt = (v: number) => (v * 100).toFixed(1);
 
 // coin-equivalent contracts, abbreviated, sign-aware: -94384.5 -> "-94.4k"
 export const coinEquiv = (v: number) => {

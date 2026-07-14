@@ -1,15 +1,7 @@
 import { useIsFetching, useQueryClient } from '@tanstack/react-query';
 
 import { useStats } from '../hooks/useStats';
-import { ivFmt } from '../utils/format';
-
-function formatSpot(spot?: number): string {
-  if (spot == null) return '—';
-  return spot.toLocaleString('en-US', { maximumFractionDigits: 0 });
-}
-
-// DVOL index level: 0.382 -> "38.2"
-const dvolFmt = (v: number) => (v * 100).toFixed(1);
+import { dvolFmt, ivFmt, priceWhole } from '../utils/format';
 
 function Field({ k, v, amber }: { k: string; v: string; amber?: boolean }) {
   return (
@@ -20,7 +12,13 @@ function Field({ k, v, amber }: { k: string; v: string; amber?: boolean }) {
   );
 }
 
-export default function Header({ currency }: { currency: string }) {
+export default function Header({
+  currency,
+  onOpenSettings,
+}: {
+  currency: string;
+  onOpenSettings: () => void;
+}) {
   const { data } = useStats(currency);
   const queryClient = useQueryClient();
   const busy = useIsFetching() > 0;
@@ -34,7 +32,7 @@ export default function Header({ currency }: { currency: string }) {
       <div className="header__brand">◆ DATADESK</div>
       <div className="header__fields">
         <Field k="SYM" v={`${currency}-USD`} />
-        <Field k="SPOT" v={`$${formatSpot(data?.spot)}`} amber />
+        <Field k="SPOT" v={data?.spot != null ? `$${priceWhole(data.spot)}` : '—'} amber />
         <Field k="DVOL" v={data?.dvol != null ? dvolFmt(data.dvol) : '—'} />
         <Field k="IV RANK" v={data?.dvol_rank != null ? ivFmt(data.dvol_rank) : '—'} />
         <Field
@@ -49,6 +47,9 @@ export default function Header({ currency }: { currency: string }) {
       </div>
       <button className="refresh" onClick={refresh} disabled={busy}>
         {busy ? '⟳ SYNCING' : '⟳ REFRESH'}
+      </button>
+      <button className="gear" onClick={onOpenSettings} aria-label="Settings" title="SETTINGS">
+        ⚙
       </button>
     </header>
   );

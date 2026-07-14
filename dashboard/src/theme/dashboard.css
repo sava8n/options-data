@@ -628,3 +628,160 @@ body {
 .statusbar__conn--err {
   color: var(--red);
 }
+
+/* settings drawer */
+.gear {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border-bright);
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.gear:hover {
+  color: var(--amber);
+  border-color: var(--amber-dim);
+}
+
+.settings__scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 40;
+}
+
+.settings {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  width: 340px;
+  max-width: 100vw;
+  height: 100%;
+  background: var(--bg-panel);
+  border-left: 1px solid var(--border-bright);
+  transform: translateX(100%);
+  transition: transform 0.15s ease;
+  visibility: hidden;
+}
+
+.settings--open {
+  transform: none;
+  visibility: visible;
+}
+
+.settings__head {
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
+  background: linear-gradient(180deg, var(--bg-raised), var(--bg-panel));
+  border-bottom: 1px solid var(--border-bright);
+}
+
+.settings__title {
+  flex: 1;
+  color: var(--amber);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+}
+
+.settings__close {
+  background: transparent;
+  color: var(--text-dim);
+  border: none;
+  font-family: var(--mono);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.settings__close:hover {
+  color: var(--amber);
+}
+
+.settings__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+}
+
+.settings__group {
+  margin-bottom: 22px;
+}
+
+.settings__group-title {
+  margin-bottom: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+  color: var(--amber-dim);
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.settings__row {
+  display: grid;
+  grid-template-columns: 1fr 96px;
+  align-items: center;
+  gap: 6px 10px;
+  margin-bottom: 12px;
+}
+
+.settings__k {
+  color: var(--text-dim);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.settings__hint {
+  grid-column: 1 / -1;
+  color: var(--text-dim);
+  font-size: 9px;
+  line-height: 1.4;
+  opacity: 0.7;
+}
+
+.settings__input,
+.settings__select {
+  width: 100%;
+  background: var(--bg);
+  color: var(--amber);
+  border: 1px solid var(--border-bright);
+  border-radius: 2px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 4px 6px;
+}
+
+.settings__input:focus,
+.settings__select:focus {
+  outline: none;
+  border-color: var(--amber-dim);
+}
+
+/* hide number spinners to keep the terminal look */
+.settings__input::-webkit-outer-spin-button,
+.settings__input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.settings__input[type='number'] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.settings__foot {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border-bright);
+}
+
+.settings__foot .refresh {
+  width: 100%;
+  padding: 7px 0;
+}

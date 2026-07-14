@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 
-import { FRONT_EXPIRY } from '../../config';
 import { useProbCurves } from '../../hooks/useProbCurves';
+import { useSettings } from '../../settings/store';
 import { frontExpiry } from '../../utils/expiry';
 import { expiryLabel } from '../../utils/format';
 import ProbDistributionPanel from './ProbDistributionPanel';
@@ -20,10 +20,11 @@ export default function ProbDistributionSection({ currency }: { currency: string
     return [...seen.entries()].sort((a, b) => a[1] - b[1]).map(([iso]) => iso);
   }, [data]);
 
+  const { frontExpiry: frontPref } = useSettings();
   const [picked, setPicked] = useState<string | null>(null);
   // fall back to the front expiry
   const selectedExpiry =
-    picked && expiries.includes(picked) ? picked : frontExpiry(expiries, FRONT_EXPIRY) ?? null;
+    picked && expiries.includes(picked) ? picked : frontExpiry(expiries, frontPref) ?? null;
 
   const points = useMemo(
     () => (data && selectedExpiry ? data.points.filter((p) => p.expiry === selectedExpiry) : []),

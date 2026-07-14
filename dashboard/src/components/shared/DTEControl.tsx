@@ -1,18 +1,32 @@
 import { useState } from 'react';
 
 interface Props {
-  defaultMin: number;
-  defaultMax: number;
+  min: number;
+  max: number;
   onChange: (min: number, max: number) => void;
 }
 
-// days-to-expiry window control for the multi-expiry IV charts
-export default function DTEControl({ defaultMin, defaultMax, onChange }: Props) {
-  const [minText, setMinText] = useState(String(defaultMin));
-  const [maxText, setMaxText] = useState(String(defaultMax));
+const text = (v: number) => (Number.isFinite(v) ? String(v) : '');
+
+export default function DTEControl({ min, max, onChange }: Props) {
+  const [minText, setMinText] = useState(() => text(min));
+  const [maxText, setMaxText] = useState(() => text(max));
+  const [emitted, setEmitted] = useState({ min, max });
+
+  // Resync the boxes only when the window is reset from outside.
+  // An edit made here echoes back as the value it just emitted, which must not
+  // rewrite the text. Empty min reads as 0, empty max as unbounded.
+  if (emitted.min !== min || emitted.max !== max) {
+    setEmitted({ min, max });
+    setMinText(text(min));
+    setMaxText(text(max));
+  }
 
   const emit = (minT: string, maxT: string) => {
-    onChange(minT === '' ? 0 : Number(minT), maxT === '' ? Infinity : Number(maxT));
+    const nextMin = minT === '' ? 0 : Number(minT);
+    const nextMax = maxT === '' ? Infinity : Number(maxT);
+    setEmitted({ min: nextMin, max: nextMax });
+    onChange(nextMin, nextMax);
   };
 
   return (

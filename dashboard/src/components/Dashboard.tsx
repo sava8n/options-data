@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import Header from './Header';
 import StatusBar from './StatusBar';
+import SettingsDrawer from './settings/SettingsDrawer';
 import Tabs, { type TabId } from './Tabs';
 import IVSurfaceSection from './iv/IVSurfaceSection';
 import IVCurvesSection from './iv/IVCurvesSection';
@@ -23,10 +24,11 @@ import VolumeByStrikeSection from './volume/VolumeByStrikeSection';
 
 export default function Dashboard({ currency }: { currency: string }) {
   const [tab, setTab] = useState<TabId>('positioning');
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
     <div className="dashboard">
-      <Header currency={currency} />
+      <Header currency={currency} onOpenSettings={() => setSettingsOpen(true)} />
 
       <SpotHistorySection currency={currency} />
 
@@ -72,6 +74,8 @@ export default function Dashboard({ currency }: { currency: string }) {
       </main>
 
       <StatusBar currency={currency} />
+
+      <SettingsDrawer open={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );
 }

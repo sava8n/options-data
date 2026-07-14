@@ -1,19 +1,18 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
-import { DEFAULT_MAX_DTE, DEFAULT_MIN_DTE } from '../../config';
 import { useTermStructure } from '../../hooks/useTermStructure';
 import { filterByDTE } from '../../utils/dte';
 import DTEControl from '../shared/DTEControl';
+import { useDteWindow } from '../shared/useDteWindow';
 import BasisPanel from './BasisPanel';
 
 export default function BasisSection({ currency }: { currency: string }) {
   const { data, isLoading, isError, error } = useTermStructure(currency);
 
-  const [minDte, setMinDte] = useState(DEFAULT_MIN_DTE);
-  const [maxDte, setMaxDte] = useState(DEFAULT_MAX_DTE);
+  const [dte, setDte] = useDteWindow();
   const windowed = useMemo(
-    () => (data ? { ...data, points: filterByDTE(data.points, minDte, maxDte) } : undefined),
-    [data, minDte, maxDte],
+    () => (data ? { ...data, points: filterByDTE(data.points, dte.min, dte.max) } : undefined),
+    [data, dte],
   );
   const points = windowed?.points.length ?? 0;
 
@@ -22,14 +21,7 @@ export default function BasisSection({ currency }: { currency: string }) {
       <div className="panel__title">
         <span className="panel__title-main">BASIS</span>
         <span className="panel__title-sub">ANN. (F/S−1)/T × EXPIRY</span>
-        <DTEControl
-          defaultMin={DEFAULT_MIN_DTE}
-          defaultMax={DEFAULT_MAX_DTE}
-          onChange={(min, max) => {
-            setMinDte(min);
-            setMaxDte(max);
-          }}
-        />
+        <DTEControl min={dte.min} max={dte.max} onChange={(min, max) => setDte({ min, max })} />
       </div>
       <div className="panel__body">
         {isLoading && <div className="panel__msg">LOADING BASIS…</div>}

@@ -1,6 +1,7 @@
 import Dashboard from './components/Dashboard';
-import { DEFAULT_CURRENCY } from './config';
+import { useSettings } from './settings/store';
 
 export default function App() {
-  return <Dashboard currency={DEFAULT_CURRENCY} />;
+  const { currency } = useSettings();
+  return <Dashboard currency={currency} />;
 }

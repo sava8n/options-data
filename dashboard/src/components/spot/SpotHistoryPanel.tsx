@@ -13,7 +13,8 @@ import type { SpotCandle } from '../../types';
 import type { PriceLevel, QuantileBand } from './levels';
 import { QuantileBandPrimitive } from './QuantileBandPrimitive';
 import { AMBER, AXIS_LINE, GRID, MONO } from '../../theme/charts';
-import { SPOT_CHART_LOOKBACK_DAYS } from '../../config';
+import { useSettings } from '../../settings/store';
+import { priceWhole } from '../../utils/format';
 
 const UP = '#33ff66';
 const DOWN = '#ff3b30';
@@ -25,12 +26,14 @@ interface Props {
 }
 
 export default function SpotHistoryPanel({ candles, levels, band }: Props) {
+  const { spotLookbackDays } = useSettings();
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const seriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
   const bandRef = useRef<QuantileBandPrimitive | null>(null);
   const priceLinesRef = useRef<IPriceLine[]>([]);
-  const windowedRef = useRef(false);
+  // the lookback the visible range was last set from; null until the first paint
+  const windowedRef = useRef<number | null>(null);
 
   const rows = useMemo(
     () =>
@@ -71,7 +74,7 @@ export default function SpotHistoryPanel({ candles, levels, band }: Props) {
         horzLine: { color: AXIS_LINE, labelBackgroundColor: '#0b0e10' },
       },
       localization: {
-        priceFormatter: (p: number) => p.toLocaleString('en-US', { maximumFractionDigits: 0 }),
+        priceFormatter: priceWhole,
       },
     });
     const series = chart.addSeries(CandlestickSeries, {
@@ -94,7 +97,7 @@ export default function SpotHistoryPanel({ candles, levels, band }: Props) {
       seriesRef.current = null;
       bandRef.current = null;
       priceLinesRef.current = [];
-      windowedRef.current = false;
+      windowedRef.current = null;
     };
   }, []);
 
@@ -103,15 +106,16 @@ export default function SpotHistoryPanel({ candles, levels, band }: Props) {
     const series = seriesRef.current;
     if (!chart || !series) return;
     series.setData(rows);
-    // default view on first load; later refetches keep the user's zoom/pan
-    if (!windowedRef.current) {
+    // default view on first load and whenever the lookback setting changes;
+    // later refetches keep the user's zoom/pan
+    if (windowedRef.current !== spotLookbackDays) {
       chart.timeScale().setVisibleLogicalRange({
-        from: Math.max(0, rows.length - SPOT_CHART_LOOKBACK_DAYS),
+        from: Math.max(0, rows.length - spotLookbackDays),
         to: rows.length,
       });
-      windowedRef.current = true;
+      windowedRef.current = spotLookbackDays;
     }
-  }, [rows]);
+  }, [rows, spotLookbackDays]);
 
   // options-derived levels as horizontal price lines, resynced on each refetch
   useEffect(() => {

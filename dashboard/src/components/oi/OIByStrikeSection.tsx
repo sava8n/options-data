@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import { FRONT_EXPIRY } from '../../config';
 import { useOIByStrike } from '../../hooks/useOIByStrike';
+import { useSettings } from '../../settings/store';
 import { frontExpiry } from '../../utils/expiry';
 import { expiryLabel } from '../../utils/format';
 import OIByStrikePanel from './OIByStrikePanel';
@@ -10,7 +10,8 @@ import OIStatTiles from './OIStatTiles';
 export default function OIByStrikeSection({ currency }: { currency: string }) {
   const all = useOIByStrike(currency);
   const expiries = all.data?.expiries ?? [];
-  const front = frontExpiry(expiries, FRONT_EXPIRY);
+  const { frontExpiry: frontPref } = useSettings();
+  const front = frontExpiry(expiries, frontPref);
 
   // null = untouched, take the front expiry;
   // "" = user asked for all expirations

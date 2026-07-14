@@ -4,9 +4,11 @@ import type {
   OIByStrikeResponse,
   ProbCurvesResponse,
 } from '../../types';
-import { SPOT_CHART_LEVELS } from '../../config';
+import type { Settings } from '../../config';
 import { CALL, PUT } from '../../theme/charts';
 import { expiryLabel, oiFmt, usdShort } from '../../utils/format';
+
+export type LevelConfig = Settings['levels'];
 
 export interface PriceLevel {
   price: number;
@@ -42,20 +44,21 @@ function wall(
 // when such a stack exists. Weight is summed over the cluster.
 function clusterLevel(
   pts: { strike: number; weight: number }[],
+  cfg: LevelConfig,
 ): { price: number; weight: number } | undefined {
   const grid = pts.map((p) => p.strike).sort((a, b) => a - b);
   const steps = grid
     .slice(1)
     .map((s, i) => s - grid[i])
     .sort((a, b) => a - b);
-  const maxGap = SPOT_CHART_LEVELS.gexClusterMaxGap * (steps[Math.floor(steps.length / 2)] ?? 0);
+  const maxGap = cfg.gexClusterMaxGap * (steps[Math.floor(steps.length / 2)] ?? 0);
 
   const sorted = pts.filter((p) => p.weight > 0).sort((a, b) => a.strike - b.strike);
   if (sorted.length === 0) return undefined;
 
   let top = 0;
   for (let i = 1; i < sorted.length; i++) if (sorted[i].weight > sorted[top].weight) top = i;
-  const minWeight = SPOT_CHART_LEVELS.gexClusterMinWeight * sorted[top].weight;
+  const minWeight = cfg.gexClusterMinWeight * sorted[top].weight;
 
   let lo = top;
   while (lo > 0 && sorted[lo].strike - sorted[lo - 1].strike <= maxGap && sorted[lo - 1].weight >= minWeight) lo--;
@@ -70,10 +73,10 @@ function clusterLevel(
   };
 }
 
-function deduplicate(levels: PriceLevel[]): PriceLevel[] {
+function deduplicate(levels: PriceLevel[], tolerance: number): PriceLevel[] {
   const kept: PriceLevel[] = [];
   for (const lvl of levels) {
-    if (!kept.some((k) => Math.abs(lvl.price - k.price) <= SPOT_CHART_LEVELS.tolerance)) kept.push(lvl);
+    if (!kept.some((k) => Math.abs(lvl.price - k.price) <= tolerance)) kept.push(lvl);
   }
   return kept;
 }
@@ -87,9 +90,10 @@ export function buildLevels(
   gex: GEXByStrikeResponse | undefined,
   oiAll: OIByStrikeResponse | undefined,
   oiFront: OIByStrikeResponse | undefined,
+  cfg: LevelConfig,
 ): PriceLevel[] {
   const spot = gex?.spot ?? oiAll?.spot;
-  const inRange = (p: number) => spot != null && Math.abs(p / spot - 1) <= SPOT_CHART_LEVELS.range;
+  const inRange = (p: number) => spot != null && Math.abs(p / spot - 1) <= cfg.range;
 
   const levels: PriceLevel[] = [];
 
@@ -127,16 +131,18 @@ export function buildLevels(
     const eligible = gex.points.filter((p) => inRange(p.strike));
     const res = clusterLevel(
       eligible.filter((p) => p.strike >= spot).map((p) => ({ strike: p.strike, weight: p.call_gex })),
+      cfg,
     );
     if (res) levels.push({ price: res.price, title: `GEX RES ${usdShort(res.weight)}`, color: CALL });
     // dealers are short put gamma, so put GEX is negative, magnitude is the weight
     const sup = clusterLevel(
       eligible.filter((p) => p.strike <= spot).map((p) => ({ strike: p.strike, weight: -p.put_gex })),
+      cfg,
     );
     if (sup) levels.push({ price: sup.price, title: `GEX SUP ${usdShort(sup.weight)}`, color: PUT });
   }
 
-  return deduplicate(levels);
+  return deduplicate(levels, cfg.tolerance);
 }
 
 // implied p16/p50/p84 at the front expiry

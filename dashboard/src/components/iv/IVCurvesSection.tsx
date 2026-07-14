@@ -1,19 +1,18 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
-import { DEFAULT_MAX_DTE, DEFAULT_MIN_DTE } from '../../config';
 import { useIVCurves } from '../../hooks/useIVCurves';
 import { filterByDTE } from '../../utils/dte';
 import DTEControl from '../shared/DTEControl';
+import { useDteWindow } from '../shared/useDteWindow';
 import IVCurvesPanel from './IVCurvesPanel';
 
 export default function IVCurvesSection({ currency }: { currency: string }) {
   const { data, isLoading, isError, error } = useIVCurves(currency);
 
-  const [minDte, setMinDte] = useState(DEFAULT_MIN_DTE);
-  const [maxDte, setMaxDte] = useState(DEFAULT_MAX_DTE);
+  const [dte, setDte] = useDteWindow();
   const windowed = useMemo(
-    () => (data ? { ...data, points: filterByDTE(data.points, minDte, maxDte) } : undefined),
-    [data, minDte, maxDte],
+    () => (data ? { ...data, points: filterByDTE(data.points, dte.min, dte.max) } : undefined),
+    [data, dte],
   );
   const points = windowed?.points.length ?? 0;
 
@@ -22,14 +21,7 @@ export default function IVCurvesSection({ currency }: { currency: string }) {
       <div className="panel__title">
         <span className="panel__title-main">IMPLIED VOLATILITY CURVES</span>
         <span className="panel__title-sub">2D · STRIKE × IV · PER EXPIRY</span>
-        <DTEControl
-          defaultMin={DEFAULT_MIN_DTE}
-          defaultMax={DEFAULT_MAX_DTE}
-          onChange={(min, max) => {
-            setMinDte(min);
-            setMaxDte(max);
-          }}
-        />
+        <DTEControl min={dte.min} max={dte.max} onChange={(min, max) => setDte({ min, max })} />
       </div>
       <div className="panel__body">
         {isLoading && <div className="panel__msg">LOADING CURVES…</div>}
