@@ -54,9 +54,9 @@ export const DEFAULT_SETTINGS: Settings = {
   },
   cot: {
     window: 52,
-    method: 'rank',
-    flowWeeks: 12,
-    netZoom: '6M',
+    method: 'minmax',
+    flowWeeks: 52,
+    netZoom: '1Y',
     participants: ['asset_mgr', 'lev_money'],
   },
 };
