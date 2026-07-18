@@ -35,7 +35,7 @@ async def lifespan(app: FastAPI):
 
 server = FastAPI(
     title="Crypto Datadesk API",
-    version="1.0.0",
+    version="0.0.1",
     description="REST analytics for crypto options (from Deribit) and COT report.",
     lifespan=lifespan,
 )
